@@ -41,6 +41,13 @@
   #nameInput{font-family:inherit; font-size:28px; text-align:center; padding:14px 18px; border:3px solid var(--purple);
     border-radius:18px; width:min(80vw,340px); color:var(--ink); background:#fff; outline:none;}
 
+  /* voice picker */
+  .voicepick{display:flex; align-items:center; gap:8px; flex-wrap:wrap; justify-content:center;
+    font-size:15px; font-weight:800; color:var(--purple-d); margin-top:2px;}
+  .voicepick select{font-family:inherit; font-size:15px; padding:8px 10px; border-radius:12px;
+    border:2px solid var(--purple); background:#fff; color:var(--ink); max-width:230px;}
+  .voicepick .btn.small{font-size:15px; padding:8px 14px;}
+
   /* unicorn picker grid */
   .grid{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; max-width:720px;}
   .pick{background:#ffffffcc; border:4px solid transparent; border-radius:24px; padding:8px 8px 4px; cursor:pointer;
@@ -65,7 +72,7 @@
   .topbar{position:fixed; top:0; left:0; right:0; display:flex; align-items:center; gap:10px; padding:12px 14px; z-index:6;}
   .iconbtn{font-size:24px; background:#fff; border:none; border-radius:50%; width:48px; height:48px; cursor:pointer; box-shadow:0 4px 0 #0002; line-height:1;}
   .iconbtn:active{transform:translateY(2px); box-shadow:0 2px 0 #0002;}
-  .stars{font-size:22px; min-height:30px; letter-spacing:1px; flex:0 1 auto; overflow:hidden;}
+  .stars{font-size:20px; font-weight:800; min-height:30px; letter-spacing:1px; flex:0 1 auto; overflow:hidden; white-space:nowrap; color:var(--purple-d);}
   .bar{flex:1; height:20px; background:#ffffffaa; border-radius:999px; overflow:hidden; box-shadow:inset 0 2px 4px #0002; max-width:360px;}
   .fill{height:100%; width:0%; background:linear-gradient(90deg,var(--pink),var(--purple)); border-radius:999px; transition:width .4s cubic-bezier(.2,1,.3,1);}
 
@@ -91,6 +98,8 @@
     100%{transform:translateY(0) rotate(0);}}
   .uni-wrap.sad .uni-svg{animation:shakeSad .6s ease; transform:translateY(6px);}
   @keyframes shakeSad{0%,100%{transform:translateY(6px) rotate(0);}25%{transform:translateY(6px) rotate(-3deg);}75%{transform:translateY(6px) rotate(3deg);}}
+  .uni-wrap.spin .uni-svg{animation:spin360 1s ease;}
+  @keyframes spin360{from{transform:rotate(0);}to{transform:rotate(360deg);}}
 
   .cheek{opacity:0; transition:opacity .2s;}
   .uni-wrap.happy .cheek{opacity:1;}
@@ -105,7 +114,7 @@
     font-size:min(12vw,58px); box-shadow:0 8px 0 #0001, 0 12px 24px #8a52ff33; min-width:120px;}
   .bubble.count{font-size:min(9vw,42px); line-height:1.1; max-width:340px;}
   .bubble:after{content:""; position:absolute; bottom:-15px; left:40px; border-left:16px solid transparent; border-right:16px solid transparent; border-top:16px solid #fff;}
-  .plabel{font-size:min(5.5vw,22px); font-weight:700; opacity:.8;}
+  .plabel{font-size:min(5.5vw,22px); font-weight:800; opacity:.85; color:var(--purple-d); max-width:520px; line-height:1.2;}
   .say{font-size:19px; background:#fff; border:none; border-radius:999px; padding:8px 16px; cursor:pointer; box-shadow:0 4px 0 #0002;}
   .say:active{transform:translateY(2px); box-shadow:0 2px 0 #0002;}
 
@@ -128,6 +137,17 @@
   .spark{position:fixed; pointer-events:none; z-index:9; animation:spk .9s ease-out forwards;}
   @keyframes spk{0%{opacity:1; transform:translate(0,0) scale(.4);}100%{opacity:0; transform:translate(var(--dx),var(--dy)) scale(1.3);}}
 
+  /* surprises & finale */
+  .confetti{position:fixed; top:-48px; z-index:12; pointer-events:none; will-change:transform; animation:conffall linear forwards;}
+  @keyframes conffall{to{transform:translateY(112vh) rotate(720deg);}}
+  .floaty{position:fixed; z-index:12; pointer-events:none; will-change:transform; animation:floatby linear forwards;}
+  @keyframes floatby{to{transform:translate(var(--fx),var(--fy)) rotate(var(--fr));}}
+  .flash{position:fixed; inset:0; z-index:7; pointer-events:none; opacity:0;}
+  .flash.go{animation:flashfade 1.2s ease-out forwards;}
+  @keyframes flashfade{0%{opacity:0;}22%{opacity:.5;}100%{opacity:0;}}
+  body.disco{animation:disco 1.4s ease;}
+  @keyframes disco{0%,100%{filter:hue-rotate(0deg);}50%{filter:hue-rotate(300deg) saturate(1.5);}}
+
   /* win screen */
   #win .parade{font-size:64px; animation:trot 1s infinite;}
   @keyframes trot{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
@@ -143,6 +163,11 @@
   <h1 class="big">Unicorn Math Adventures</h1>
   <p class="lead">Hi there! What is your name?</p>
   <input id="nameInput" placeholder="Type your name" autocomplete="off" maxlength="14">
+  <div class="voicepick">
+    <span>👑 Elsa's voice:</span>
+    <select id="voiceSel"><option>Loading voices…</option></select>
+    <button class="btn ghost small" id="voiceTest" type="button">🔊 Try</button>
+  </div>
   <button class="btn" id="nameGo">Let's Go! ▶</button>
 </div>
 
@@ -210,7 +235,9 @@
   "use strict";
 
   /* ================= state ================= */
-  var state = { name:"friend", uni:null, story:null, fed:0, goal:10, voice:true, current:null, locked:false };
+  var state = { name:"friend", uni:null, story:null, fed:0, goal:20, voice:true,
+                current:null, currentFrame:"", locked:false,
+                voiceList:[], voiceObj:null, surpriseAt:null };
 
   /* ================= unicorns ================= */
   var UNICORNS = [
@@ -279,13 +306,15 @@
 
   /* ================= helpers ================= */
   function rnd(n){ return Math.floor(Math.random()*n); }
-  function between(lo,hi){ return lo + rnd(hi-lo+1); }
+  function between(lo,hi){ if(hi<lo) hi=lo; return lo + rnd(hi-lo+1); }
   function pick(a){ return a[rnd(a.length)]; }
   function shuffle(a){ for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t;} return a; }
   function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+  function lerp(a,b,t){ return Math.round(a+(b-a)*t); }   /* difficulty ramp: t goes 0 -> 1 across an adventure */
 
-  /* ================= problem generators ================= */
-  function makeArith(max){ return function(){
+  /* ================= problem generators (each takes lvl 0..1) ================= */
+  function makeArith(loMax,hiMax){ return function(lvl){
+    var max=Math.max(3,lerp(loMax,hiMax,lvl));
     if(Math.random()<0.5){
       var a=between(1,Math.max(2,max-1)), b=between(1,Math.max(1,max-a));
       return {q:a+" + "+b, ans:a+b, spoken:a+" plus "+b};
@@ -294,42 +323,67 @@
       return {q:x+" − "+y, ans:x-y, spoken:x+" minus "+y};
     }
   };}
-  function makeMake10(){ return function(){
-    var a=between(1,9); return {q:a+" + ? = 10", ans:10-a, spoken:a+" plus what makes 10?"};
+  function makeMakeN(){ return function(lvl){
+    var target = lvl<0.5 ? 10 : pick([10,20]);
+    var a=between(1,target-1);
+    return {q:a+" + ? = "+target, ans:target-a, spoken:a+" plus what makes "+target+"?"};
   };}
-  function makeBonds(maxWhole){ return function(){
-    var whole = maxWhole<=10 ? 10 : (Math.random()<0.5?10 : maxWhole);
+  function makeBonds(loWhole,hiWhole){ return function(lvl){
+    var whole=Math.max(6,lerp(loWhole,hiWhole,lvl));
     var part=between(1,whole-1);
     return {q:whole+" is "+part+" and ?", ans:whole-part, spoken:whole+" is "+part+" and what?"};
   };}
-  function makeSkip(steps){ return function(){
-    var step=pick(steps), start=step*between(1,4), seq=[start,start+step,start+2*step];
+  function makeSkip(steps){ return function(lvl){
+    var step=pick(steps), start=step*between(1,5), seq=[start,start+step,start+2*step];
     return {q:seq.join(", ")+", ?", ans:start+3*step, spoken:"count by "+step+". "+seq.join(", ")+", what comes next?"};
   };}
-  function makeCount(){ var pool=["🍎","⭐","🍓","🌸","🍪","❄️","💎"]; return function(){
-    var n=between(2,9), e=pick(pool), row="";
+  function makeCount(){ var pool=["🍎","⭐","🍓","🌸","🍪","❄️","💎","🧁"]; return function(lvl){
+    var hi = lvl<0.5 ? 9 : 12, n=between(3,hi), e=pick(pool), row="";
     for(var i=0;i<n;i++) row+=e;
-    return {q:row, ans:n, spoken:"How many "+"do you see?", isCount:true};
+    return {q:row, ans:n, spoken:"How many do you see?", isCount:true};
+  };}
+  function makeDoubles(loMax,hiMax){ return function(lvl){
+    var m=Math.max(2,lerp(loMax,hiMax,lvl)), a=between(2,m);
+    return {q:a+" + "+a, ans:a+a, spoken:"double "+a+". "+a+" plus "+a};
+  };}
+  function makeAdd3(loMax,hiMax){ return function(lvl){
+    var m=Math.max(2,lerp(loMax,hiMax,lvl));
+    var a=between(1,m), b=between(1,m), c=between(1,m);
+    return {q:a+" + "+b+" + "+c, ans:a+b+c, spoken:a+" plus "+b+" plus "+c};
+  };}
+  function makeMult(){ return function(lvl){
+    var a=pick([2,3,4,5,10]);
+    var b = a===10 ? between(1,5) : between(2, lvl<0.5?5:6);
+    return {q:a+" × "+b, ans:a*b, spoken:a+" times "+b};
   };}
 
-  /* ================= stories ================= */
+  /* ================= stories (20 questions each, harder, with themed frames) ================= */
   var STORIES = [
-    {key:'party', em:'🧁', title:'The Frozen Cupcake Party', badge:'easy', item:'🧁', goal:10,
+    {key:'party', em:'🧁', title:'The Frozen Cupcake Party', badge:'easy', item:'🧁', goal:20,
      desc:'Make yummy cupcakes for the unicorn party! Nice and easy.',
-     gens:[makeArith(20), makeMake10(), makeCount()],
-     intro:function(n,u){ return u.name+' says: "Hi '+n+'! We are having a big party in the ice castle. Help me make 10 magic cupcakes by solving math treats. Yummy!"'; },
+     gens:[makeArith(12,30), makeMakeN(), makeCount(), makeDoubles(3,9)],
+     frames:['Sprinkle the cupcakes! ✨','The oven says ding! 🔔','Add the magic sugar! 🍬','Frost this one pretty! 🧁',
+             'Elsa loves this flavor! ❄️','Make it sparkle! ⭐','Count the sweet treats! 🍓','Almost party time! 🎈'],
+     parade:'🧁🎉🦄',
+     intro:function(n,u){ return u.name+' says: "Hi '+n+'! We are having a big party in the ice castle. Help me make 20 magic cupcakes by solving math treats. Yummy!"'; },
      winTitle:'Best Party Ever!', win:function(n){ return 'The party is amazing, '+n+'! Every unicorn is dancing and eating your cupcakes. Thank you!'; }},
 
-    {key:'rescue', em:'🌉', title:'Rescue the Baby Unicorn', badge:'med', item:'⭐', goal:10,
+    {key:'rescue', em:'🌉', title:'Rescue the Baby Unicorn', badge:'med', item:'⭐', goal:20,
      desc:'A baby unicorn is lost across the frozen river. Build a magic bridge!',
-     gens:[makeArith(50), makeBonds(20), makeSkip([2,5,10])],
-     intro:function(n,u){ return u.name+' says: "Oh no, '+n+'! A little baby unicorn is stuck across the icy river. Solve the math stones with me to build a sparkling bridge and save it!"'; },
+     gens:[makeArith(30,80), makeBonds(20,40), makeSkip([2,5,10]), makeAdd3(3,9), makeDoubles(6,12)],
+     frames:['Place the next ice stone! 🧊','The baby is waiting! 🦄','Build the bridge strong! 🌉','Step across carefully! 👣',
+             'The river is freezing! ❄️','You are getting closer! 💗','Freeze a new step! ✨','Be brave and solve it! 💪'],
+     parade:'🦄💖🦄',
+     intro:function(n,u){ return u.name+' says: "Oh no, '+n+'! A little baby unicorn is stuck across the icy river. Solve 20 math stones with me to build a sparkling bridge and save it!"'; },
      winTitle:'You Saved the Baby!', win:function(n){ return 'You built the whole bridge and carried the baby unicorn home, '+n+'! You are a real hero.'; }},
 
-    {key:'dragon', em:'🐉', title:"Break the Ice Dragon's Spell", badge:'hard', item:'💎', goal:10,
+    {key:'dragon', em:'🐉', title:"Break the Ice Dragon's Spell", badge:'hard', item:'💎', goal:20,
      desc:'The Ice Dragon froze the kingdom! Only hard math magic can save it.',
-     gens:[makeArith(100), makeBonds(50), makeSkip([3,5,10])],
-     intro:function(n,u){ return u.name+' says: "'+n+', the Ice Dragon froze our whole kingdom in ice! Only the strongest math magic can break the spell. Smash 10 ice crystals with hard problems. I know you can do it!"'; },
+     gens:[makeArith(50,130), makeBonds(30,60), makeSkip([3,5,10]), makeMult(), makeAdd3(5,12), makeDoubles(8,15)],
+     frames:['Charge the ice crystal! 💎','The dragon is watching! 🐉','Break the frozen spell! ✨','Cast your math magic! 🔮',
+             'Be strong and smart! 💪','Melt the ice wall! 🔥','Almost free the kingdom! 👑','Blast it with numbers! ⚡'],
+     parade:'🐉🌈☀️',
+     intro:function(n,u){ return u.name+' says: "'+n+', the Ice Dragon froze our whole kingdom in ice! Only the strongest math magic can break the spell. Smash 20 ice crystals with hard problems. I know you can do it!"'; },
      winTitle:'The Kingdom is Saved!', win:function(n){ return 'BOOM! The spell shattered and the whole kingdom is warm again. '+n+', you are the greatest math wizard ever!'; }}
   ];
 
@@ -381,6 +435,9 @@
   /* ================= game ================= */
   function startStory(){
     state.fed=0; state.goal=state.story.goal;
+    /* pick ~5 random checkpoints (not first/last) for surprise fun */
+    var poolQ=[]; for(var i=2;i<state.goal;i++) poolQ.push(i); shuffle(poolQ);
+    state.surpriseAt=new Set(poolQ.slice(0, Math.min(5,poolQ.length)));
     document.getElementById('gameUni').innerHTML=unicornSVG(state.uni,'game');
     updateProgress();
     show('game');
@@ -388,22 +445,25 @@
   }
 
   function newProblem(){
+    var lvl = state.goal>1 ? state.fed/(state.goal-1) : 0;
     var gen=pick(state.story.gens);
-    var p=gen(); state.current=p;
+    var p=gen(lvl); state.current=p;
     var opts=[p.ans], guard=0;
-    while(opts.length<3 && guard++<60){
-      var cand=p.ans+pick([-3,-2,-1,1,2,3,5,10]);
+    while(opts.length<3 && guard++<80){
+      var cand=p.ans+pick([-10,-5,-3,-2,-1,1,2,3,5,10]);
       if(cand>=0 && opts.indexOf(cand)===-1) opts.push(cand);
     }
     while(opts.length<3) opts.push(p.ans+opts.length+1);
     shuffle(opts);
 
+    var frame=pick(state.story.frames); state.currentFrame=frame;
+    document.getElementById('plabel').textContent=frame;
+
     var b=document.getElementById('bubble');
     b.textContent=p.q;
     b.className='bubble'+(p.isCount?' count':'');
-    document.getElementById('plabel').textContent = p.isCount ? 'How many?' : 'Solve it!';
     renderAnswers(opts,p.ans);
-    if(state.voice) speak(p.spoken);
+    if(state.voice) speak(frame+' '+p.spoken);
   }
 
   function renderAnswers(opts,correct){
@@ -424,12 +484,15 @@
       btn.classList.add('correct');
       sparkleAt(e.clientX||innerWidth/2, e.clientY||innerHeight/2);
       happy(); sound('yum'); whinny();
-      cheer(pick(['Yum! 🦄','Great job, '+state.name+'!','You did it!','So good!','Woohoo!','Munch munch!']));
+      cheer(pick(['Yum! 🦄','Great job, '+state.name+'!','You did it!','So good!','Woohoo!','Munch munch!','Magic! ✨','Amazing, '+state.name+'!']));
       state.fed++; updateProgress();
+      var surprise = state.surpriseAt && state.surpriseAt.has(state.fed) && state.fed<state.goal;
+      if(surprise) setTimeout(funSurprise,350);
+      var wait = surprise?1900:1000;
       setTimeout(function(){
         state.locked=false;
         if(state.fed>=state.goal) winGame(); else newProblem();
-      },1000);
+      },wait);
     } else {
       btn.classList.add('wrong'); sad(); sound('boop');
       cheer('Try again! 💗', true);
@@ -438,8 +501,8 @@
   }
 
   /* ================= unicorn reactions ================= */
-  function happy(){ var w=document.getElementById('gameUni'); w.classList.remove('sad'); void w.offsetWidth; w.classList.add('happy'); setTimeout(function(){w.classList.remove('happy');},1000); }
-  function sad(){ var w=document.getElementById('gameUni'); w.classList.remove('happy'); void w.offsetWidth; w.classList.add('sad'); setTimeout(function(){w.classList.remove('sad');},1150); }
+  function happy(){ var w=document.getElementById('gameUni'); w.classList.remove('sad','spin'); void w.offsetWidth; w.classList.add('happy'); setTimeout(function(){w.classList.remove('happy');},1000); }
+  function sad(){ var w=document.getElementById('gameUni'); w.classList.remove('happy','spin'); void w.offsetWidth; w.classList.add('sad'); setTimeout(function(){w.classList.remove('sad');},1150); }
 
   function cheer(msg,soft){
     var c=document.getElementById('cheer');
@@ -459,19 +522,88 @@
   }
   function updateProgress(){
     document.getElementById('fill').style.width=(state.fed/state.goal*100)+'%';
-    var it=state.story?state.story.item:'⭐', s='';
-    for(var i=0;i<state.fed;i++) s+=it;
-    document.getElementById('stars').textContent=s;
+    var it=state.story?state.story.item:'⭐';
+    document.getElementById('stars').textContent=it+' '+state.fed+' / '+state.goal;
   }
 
-  /* ================= win ================= */
+  /* ================= surprise effects (fire on a few random questions) ================= */
+  function emojiRain(list,n,dur){
+    for(var i=0;i<n;i++){(function(){
+      var s=document.createElement('div'); s.className='confetti'; s.textContent=pick(list);
+      s.style.left=(Math.random()*100)+'vw'; s.style.fontSize=(16+rnd(24))+'px';
+      var d=dur*(0.6+Math.random()*0.8);
+      s.style.animationDuration=d+'s'; s.style.animationDelay=(Math.random()*0.4)+'s';
+      document.body.appendChild(s);
+      setTimeout(function(){s.remove();},(d+0.8)*1000);
+    })();}
+  }
+  function paradeAcross(list){
+    var y=38+rnd(28);
+    list.forEach(function(e,i){(function(){
+      var s=document.createElement('div'); s.className='floaty'; s.textContent=e;
+      s.style.fontSize=(34+rnd(16))+'px'; s.style.left='-70px'; s.style.top=y+'vh';
+      s.style.setProperty('--fx',(window.innerWidth+160)+'px');
+      s.style.setProperty('--fy',(rnd(40)-20)+'px'); s.style.setProperty('--fr','20deg');
+      s.style.animationDuration=(1.6+Math.random()*0.6)+'s'; s.style.animationDelay=(i*0.12)+'s';
+      document.body.appendChild(s);
+      setTimeout(function(){s.remove();},2800);
+    })();});
+  }
+  function floatUp(list,n){
+    for(var i=0;i<n;i++){(function(){
+      var s=document.createElement('div'); s.className='floaty'; s.textContent=pick(list);
+      s.style.fontSize=(18+rnd(16))+'px'; s.style.left=(20+rnd(60))+'vw'; s.style.top='82vh';
+      s.style.setProperty('--fx',(rnd(120)-60)+'px'); s.style.setProperty('--fy','-72vh'); s.style.setProperty('--fr','0deg');
+      s.style.animationDuration=(1.4+Math.random()*0.8)+'s';
+      document.body.appendChild(s);
+      setTimeout(function(){s.remove();},2400);
+    })();}
+  }
+  function flash(color){
+    var f=document.createElement('div'); f.className='flash'; f.style.background=color;
+    document.body.appendChild(f); void f.offsetWidth; f.classList.add('go');
+    setTimeout(function(){f.remove();},1300);
+  }
+  function funSurprise(){
+    var k=pick(['confetti','disco','parade','spin','jingle']);
+    if(k==='confetti'){ emojiRain(['🎉','🎊','✨','⭐','💖','🌈'],20,1.6); sound('chime'); }
+    else if(k==='disco'){ document.body.classList.add('disco'); setTimeout(function(){document.body.classList.remove('disco');},1400); melody([784,988,1175,988],'triangle',0.12,0.13); }
+    else if(k==='parade'){ paradeAcross(pick([['🦄','🌈','🦄','✨'],['🐧','⛄','❄️','🐧'],['🧁','🍦','🍭','🧁']])); sound('yum'); }
+    else if(k==='spin'){ var w=document.getElementById('gameUni'); w.classList.remove('happy'); void w.offsetWidth; w.classList.add('spin'); setTimeout(function(){w.classList.remove('spin');},1000); sound('silly'); }
+    else { floatUp(['🎵','🎶','🎵','⭐','💫'],14); melody([659,784,659,880],'triangle',0.12,0.14); }
+  }
+
+  /* ================= win + themed finale ================= */
   function winGame(){
     document.getElementById('winTitle').textContent=state.story.winTitle;
     document.getElementById('winUni').innerHTML=unicornSVG(state.uni,'win');
     var t=state.story.win(state.name);
     document.getElementById('winText').textContent=t;
-    show('win'); sound('win');
+    var par=document.querySelector('#win .parade'); if(par) par.textContent=state.story.parade||'🦄🎉🦄';
+    show('win');
+    finale(state.story.key);
     if(state.voice) speak(t);
+  }
+  function finale(kind){
+    if(kind==='party'){
+      flash('#ffd5ec');
+      emojiRain(['🧁','🎉','🎊','🎈','🍰','⭐','💖'],42,2.2);
+      melody([523,659,784,1046,1318,1046,1318,1568],'triangle',0.13,0.15);
+      setTimeout(function(){ paradeAcross(['🦄','🧁','🐧','🎉','🦄']); },500);
+    } else if(kind==='rescue'){
+      flash('#d5ecff');
+      emojiRain(['💙','✨','⭐','🦄','💖','❄️'],42,2.4);
+      melody([659,784,988,1175,1319,1175,1568],'sine',0.16,0.13);
+      setTimeout(function(){ paradeAcross(['🦄','💖','🦄']); },500);
+    } else {
+      flash('#ffe9c7');
+      emojiRain(['❄️','💥','🧊','⚡'],26,1.2);            /* the ice shatters... */
+      melody([392,523,659,784,1046,784,1046,1318,1568],'square',0.14,0.13);
+      setTimeout(function(){                                /* ...then the kingdom warms up */
+        emojiRain(['☀️','🌈','🐉','✨','💛','🎆'],38,2.4);
+        paradeAcross(['🐉','🌈','☀️','🦄']);
+      },700);
+    }
     for(var i=0;i<26;i++)(function(k){ setTimeout(function(){ sparkleAt(rnd(innerWidth), rnd(innerHeight/2)); },k*55); })(i);
   }
 
@@ -486,10 +618,19 @@
     var t=a.currentTime+(when||0); o.start(t);
     g.gain.setValueAtTime(g.gain.value,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur); o.stop(t+dur);
   }
+  function melody(seq,type,gap,vol){ seq.forEach(function(f,i){ tone(f,0.32,type||'triangle',i*(gap||0.15),vol||0.14); }); }
   function sound(kind){
-    if(!state.voice && kind!=='win') { /* still allow small sounds */ }
     if(kind==='yum'){ tone(660,.12,'triangle',0); tone(880,.15,'triangle',.09); tone(1180,.2,'triangle',.2); }
     else if(kind==='boop'){ tone(240,.18,'sine',0,.11); tone(180,.2,'sine',.08,.1); }
+    else if(kind==='chime'){ tone(1318,.15,'triangle',0,.12); tone(1568,.15,'triangle',.08,.12); tone(2093,.2,'triangle',.16,.12); }
+    else if(kind==='silly'){
+      var a=ac(); if(!a) return;
+      var o=a.createOscillator(), g=a.createGain(); o.type='sine'; o.connect(g); g.connect(a.destination);
+      var t=a.currentTime;
+      o.frequency.setValueAtTime(200,t); o.frequency.exponentialRampToValueAtTime(600,t+.12); o.frequency.exponentialRampToValueAtTime(180,t+.30);
+      g.gain.setValueAtTime(.0001,t); g.gain.exponentialRampToValueAtTime(.12,t+.03); g.gain.exponentialRampToValueAtTime(.0001,t+.34);
+      o.start(t); o.stop(t+.36);
+    }
     else if(kind==='win'){ [523,659,784,1046,1318].forEach(function(f,i){ tone(f,.35,'triangle',i*.16,.15); }); }
   }
   function whinny(){
@@ -506,10 +647,54 @@
     o.start(t); o.stop(t+.4);
   }
 
-  /* ================= speech ================= */
+  /* ================= speech (Elsa-like voice) ================= */
+  function loadVoices(){
+    if(!('speechSynthesis' in window)) { buildVoiceMenu(); return; }
+    var vs = speechSynthesis.getVoices() || [];
+    vs = vs.filter(function(v){ return /^en(-|_|$)/i.test(v.lang) || /english/i.test(v.name); });
+    if(!vs.length){ buildVoiceMenu(); return; }
+    state.voiceList=vs;
+    var saved=null; try{ saved=localStorage.getItem('elsaVoice'); }catch(e){}
+    var chosen=null;
+    if(saved) chosen=vs.filter(function(v){return v.name===saved;})[0];
+    if(!chosen) chosen=bestVoice(vs);
+    state.voiceObj=chosen||null;
+    buildVoiceMenu();
+  }
+  function bestVoice(vs){
+    var pref=['ava','samantha','allison','susan','serena','zoe','karen','tessa','moira','fiona','victoria','kate','stephanie','aria','jenny','zira','sonia','libby','google us english','google uk english female'];
+    function score(v){
+      var n=(v.name||'').toLowerCase(), s=0, i;
+      for(i=0;i<pref.length;i++){ if(n.indexOf(pref[i])>=0){ s+=120-i; break; } }
+      if(/female/i.test(n)) s+=40;
+      if(/premium|enhanced|natural|neural/i.test(n)) s+=30;
+      if(/en-?us/i.test(v.lang)) s+=20; else if(/en-?gb/i.test(v.lang)) s+=14; else s+=5;
+      if(/\b(male|daniel|alex|fred|tom|arthur|oliver|george|james|reed|rocko|eddy|junior|aaron|nathan)\b/i.test(n)) s-=70;
+      if(/(bells|bad news|good news|bubbles|jester|organ|cellos|zarvox|trinoids|whisper|wobble|boing|bahh|albert|ralph|superstar|deranged|hysterical|pipe)/i.test(n)) s-=90;
+      return s;
+    }
+    return vs.slice().sort(function(a,b){return score(b)-score(a);})[0];
+  }
+  function buildVoiceMenu(){
+    var sel=document.getElementById('voiceSel'); if(!sel) return;
+    sel.innerHTML='';
+    if(!state.voiceList.length){ var o=document.createElement('option'); o.textContent='Default voice'; sel.appendChild(o); return; }
+    state.voiceList.forEach(function(v){
+      var o=document.createElement('option'); o.value=v.name;
+      o.textContent=v.name.replace(/\(.*?\)/,'').trim()+' — '+v.lang;
+      if(state.voiceObj && v.name===state.voiceObj.name) o.selected=true;
+      sel.appendChild(o);
+    });
+  }
   function speak(text){
     if(!state.voice || !('speechSynthesis' in window)) return;
-    try{ speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(text); u.rate=.92; u.pitch=1.2; speechSynthesis.speak(u); }catch(e){}
+    try{
+      speechSynthesis.cancel();
+      var u=new SpeechSynthesisUtterance(text);
+      u.rate=0.9; u.pitch=1.12;                 /* calm, warm, gentle — snow-queen-ish */
+      if(state.voiceObj){ u.voice=state.voiceObj; u.lang=state.voiceObj.lang; }
+      speechSynthesis.speak(u);
+    }catch(e){}
   }
 
   /* ================= snow ================= */
@@ -532,11 +717,24 @@
   document.getElementById('nameGo').addEventListener('click',goName);
   nameInput.addEventListener('keydown',function(e){ if(e.key==='Enter') goName(); });
 
+  /* voice picker */
+  loadVoices();
+  if('speechSynthesis' in window){ speechSynthesis.onvoiceschanged=loadVoices; }
+  var voiceSel=document.getElementById('voiceSel');
+  voiceSel.addEventListener('change',function(){
+    var v=state.voiceList.filter(function(x){return x.name===voiceSel.value;})[0];
+    if(v){ state.voiceObj=v; try{localStorage.setItem('elsaVoice',v.name);}catch(e){}
+      speak('Hello! I am your snow queen. Let us do some magic math together!'); }
+  });
+  document.getElementById('voiceTest').addEventListener('click',function(){
+    speak('Hello '+(state.name!=='friend'?state.name:'')+'! Let us make some magic math together!');
+  });
+
   document.getElementById('backToUni').addEventListener('click',function(){ buildUniGrid(); show('chooseUni'); });
   document.getElementById('introGo').addEventListener('click',startStory);
   document.getElementById('introBack').addEventListener('click',function(){ show('chooseStory'); });
   document.getElementById('introSay').addEventListener('click',function(){ if(state.story) speak(state.story.intro(state.name,state.uni)); });
-  document.getElementById('say').addEventListener('click',function(){ if(state.current) speak(state.current.spoken); });
+  document.getElementById('say').addEventListener('click',function(){ if(state.current) speak((state.currentFrame?state.currentFrame+' ':'')+state.current.spoken); });
 
   document.getElementById('home').addEventListener('click',function(){ show('chooseStory'); });
   document.getElementById('playAgain').addEventListener('click',startStory);
