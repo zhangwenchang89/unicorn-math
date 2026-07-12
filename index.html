@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Unicorn Math Adventures — for Ange</title>
+<style>
+  :root{
+    --ice1:#e6f4ff; --ice2:#c7e6ff; --ice3:#9ad3ff;
+    --pink:#ff8fc7; --pink-d:#ff5fae;
+    --purple:#a97bff; --purple-d:#8a52ff;
+    --mint:#8ff0d6; --gold:#ffd66b; --ink:#3a2a5d;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{margin:0; height:100%;}
+  body{
+    font-family:"Comic Sans MS","Baloo 2",system-ui,-apple-system,sans-serif;
+    color:var(--ink); user-select:none; overflow:hidden; touch-action:manipulation;
+    background:
+      radial-gradient(1200px 600px at 50% -10%, #ffffff, transparent),
+      linear-gradient(180deg, var(--ice1) 0%, var(--ice2) 55%, var(--ice3) 100%);
+  }
+  .snow{position:fixed; top:-40px; opacity:.7; animation:fall linear infinite; pointer-events:none; z-index:0;}
+  @keyframes fall{to{transform:translateY(112vh) rotate(360deg);}}
+
+  /* ---------- screens ---------- */
+  .screen{display:none; position:absolute; inset:0; z-index:2;
+    flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:22px; text-align:center;}
+  .screen.active{display:flex;}
+  h1.big{font-size:min(9vw,46px); margin:0; color:var(--purple-d); text-shadow:0 3px 0 #fff;}
+  p.lead{font-size:min(5vw,22px); margin:0; max-width:620px; line-height:1.35;}
+
+  .btn{font-family:inherit; font-weight:800; color:#fff; border:none; cursor:pointer;
+    background:linear-gradient(160deg,var(--pink),var(--purple)); border-radius:999px;
+    box-shadow:0 8px 0 #7a4fd0; font-size:min(6vw,26px); padding:16px 34px;}
+  .btn:active{transform:translateY(4px); box-shadow:0 4px 0 #7a4fd0;}
+  .btn.small{font-size:18px; padding:10px 20px; box-shadow:0 5px 0 #7a4fd0;}
+  .btn.ghost{background:#fff; color:var(--purple-d); box-shadow:0 5px 0 #d9c8ff;}
+
+  /* name input */
+  #nameInput{font-family:inherit; font-size:28px; text-align:center; padding:14px 18px; border:3px solid var(--purple);
+    border-radius:18px; width:min(80vw,340px); color:var(--ink); background:#fff; outline:none;}
+
+  /* unicorn picker grid */
+  .grid{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; max-width:720px;}
+  .pick{background:#ffffffcc; border:4px solid transparent; border-radius:24px; padding:8px 8px 4px; cursor:pointer;
+    width:min(40vw,160px); box-shadow:0 6px 0 #0001; transition:transform .12s;}
+  .pick:active{transform:scale(.96);}
+  .pick .uni-svg{width:100%; height:auto;}
+  .pick .pname{font-weight:800; font-size:16px; margin-top:2px; color:var(--purple-d);}
+
+  /* story cards */
+  .cards{display:flex; flex-wrap:wrap; gap:16px; justify-content:center; max-width:760px;}
+  .story{background:#fff; border-radius:24px; padding:18px; width:min(80vw,230px); cursor:pointer;
+    box-shadow:0 8px 0 #0001,0 12px 24px #8a52ff22; border:4px solid #fff; transition:transform .12s;}
+  .story:active{transform:scale(.97);}
+  .story .em{font-size:56px;}
+  .story .st{font-size:20px; font-weight:800; margin:6px 0; color:var(--purple-d);}
+  .badge{display:inline-block; font-size:13px; font-weight:800; color:#fff; padding:4px 12px; border-radius:999px;}
+  .badge.easy{background:#4bc47a;} .badge.med{background:#f2a33c;} .badge.hard{background:#e0556f;}
+  .story .desc{font-size:13px; opacity:.7; margin-top:8px; line-height:1.3;}
+
+  /* ---------- game screen ---------- */
+  #game{padding:0;}
+  .topbar{position:fixed; top:0; left:0; right:0; display:flex; align-items:center; gap:10px; padding:12px 14px; z-index:6;}
+  .iconbtn{font-size:24px; background:#fff; border:none; border-radius:50%; width:48px; height:48px; cursor:pointer; box-shadow:0 4px 0 #0002; line-height:1;}
+  .iconbtn:active{transform:translateY(2px); box-shadow:0 2px 0 #0002;}
+  .stars{font-size:22px; min-height:30px; letter-spacing:1px; flex:0 1 auto; overflow:hidden;}
+  .bar{flex:1; height:20px; background:#ffffffaa; border-radius:999px; overflow:hidden; box-shadow:inset 0 2px 4px #0002; max-width:360px;}
+  .fill{height:100%; width:0%; background:linear-gradient(90deg,var(--pink),var(--purple)); border-radius:999px; transition:width .4s cubic-bezier(.2,1,.3,1);}
+
+  .game-area{height:100%; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px 26px; padding:70px 16px 20px;}
+  .uni-col{flex:0 0 auto; width:min(46vw,280px);}
+  .q-col{flex:1 1 320px; min-width:280px; max-width:640px; display:flex; flex-direction:column; align-items:center; gap:8px;}
+
+  /* unicorn animation */
+  .uni-wrap{position:relative;}
+  .uni-svg{width:100%; height:auto; overflow:visible; animation:breathe 3.4s ease-in-out infinite; transform-origin:50% 90%;}
+  @keyframes breathe{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-6px) scale(1.01);}}
+  .tail{transform-box:fill-box; transform-origin:top right; animation:sway 2.4s ease-in-out infinite;}
+  @keyframes sway{0%,100%{transform:rotate(-5deg);}50%{transform:rotate(7deg);}}
+
+  .uni-wrap.happy .uni-svg{animation:jumpDance .95s ease;}
+  @keyframes jumpDance{
+    0%{transform:translateY(0) rotate(0);}
+    18%{transform:translateY(-46px) rotate(-7deg);}
+    36%{transform:translateY(0) rotate(0);}
+    52%{transform:translateY(-30px) rotate(7deg);}
+    68%{transform:translateY(0) rotate(-4deg);}
+    82%{transform:translateY(-14px) rotate(3deg);}
+    100%{transform:translateY(0) rotate(0);}}
+  .uni-wrap.sad .uni-svg{animation:shakeSad .6s ease; transform:translateY(6px);}
+  @keyframes shakeSad{0%,100%{transform:translateY(6px) rotate(0);}25%{transform:translateY(6px) rotate(-3deg);}75%{transform:translateY(6px) rotate(3deg);}}
+
+  .cheek{opacity:0; transition:opacity .2s;}
+  .uni-wrap.happy .cheek{opacity:1;}
+  .mouth-sad{opacity:0;}
+  .uni-wrap.sad .mouth-happy{opacity:0;}
+  .uni-wrap.sad .mouth-sad{opacity:1;}
+  .tear{opacity:0; transform-box:fill-box;}
+  .uni-wrap.sad .tear{animation:teardrop 1.1s ease-in .05s 1;}
+  @keyframes teardrop{0%{opacity:0; transform:translateY(-2px);}25%{opacity:1;}100%{opacity:0; transform:translateY(16px);}}
+
+  .bubble{background:#fff; border-radius:26px; padding:14px 26px; font-weight:800; position:relative;
+    font-size:min(12vw,58px); box-shadow:0 8px 0 #0001, 0 12px 24px #8a52ff33; min-width:120px;}
+  .bubble.count{font-size:min(9vw,42px); line-height:1.1; max-width:340px;}
+  .bubble:after{content:""; position:absolute; bottom:-15px; left:40px; border-left:16px solid transparent; border-right:16px solid transparent; border-top:16px solid #fff;}
+  .plabel{font-size:min(5.5vw,22px); font-weight:700; opacity:.8;}
+  .say{font-size:19px; background:#fff; border:none; border-radius:999px; padding:8px 16px; cursor:pointer; box-shadow:0 4px 0 #0002;}
+  .say:active{transform:translateY(2px); box-shadow:0 2px 0 #0002;}
+
+  .answers{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; margin-top:6px;}
+  .treat{position:relative; border:none; cursor:pointer; color:#fff; font-weight:800;
+    width:min(26vw,128px); height:min(26vw,128px); border-radius:28px; font-size:min(10vw,46px);
+    display:flex; align-items:center; justify-content:center; transition:transform .1s;
+    background:linear-gradient(160deg,var(--purple),#7a4fd0); box-shadow:0 8px 0 #6a3fd0;}
+  .treat:nth-child(2n){background:linear-gradient(160deg,var(--pink),var(--pink-d)); box-shadow:0 8px 0 #d33f8e;}
+  .treat:nth-child(3n){background:linear-gradient(160deg,#7cc6ff,#3a9bff); box-shadow:0 8px 0 #2f7fd6;}
+  .treat:active{transform:translateY(4px);}
+  .treat .cookie{position:absolute; top:6px; right:9px; font-size:20px; opacity:.9;}
+  .treat.correct{animation:pop .5s forwards;}
+  .treat.wrong{animation:nope .4s;}
+  @keyframes pop{0%{transform:scale(1);}45%{transform:scale(1.25) rotate(6deg);}100%{transform:scale(0);}}
+  @keyframes nope{0%,100%{transform:translateX(0);}25%{transform:translateX(-8px);}75%{transform:translateX(8px);}}
+
+  .cheer{position:fixed; inset:0; display:flex; align-items:center; justify-content:center; z-index:8; pointer-events:none;
+    font-size:min(8vw,40px); font-weight:900; color:var(--purple-d); text-shadow:0 3px 0 #fff;}
+  .spark{position:fixed; pointer-events:none; z-index:9; animation:spk .9s ease-out forwards;}
+  @keyframes spk{0%{opacity:1; transform:translate(0,0) scale(.4);}100%{opacity:0; transform:translate(var(--dx),var(--dy)) scale(1.3);}}
+
+  /* win screen */
+  #win .parade{font-size:64px; animation:trot 1s infinite;}
+  @keyframes trot{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+
+  .voiceoff .say{opacity:.4;}
+</style>
+</head>
+<body>
+
+<!-- 1. NAME -->
+<div class="screen active" id="name">
+  <div style="font-size:70px">🦄✨</div>
+  <h1 class="big">Unicorn Math Adventures</h1>
+  <p class="lead">Hi there! What is your name?</p>
+  <input id="nameInput" placeholder="Type your name" autocomplete="off" maxlength="14">
+  <button class="btn" id="nameGo">Let's Go! ▶</button>
+</div>
+
+<!-- 2. CHOOSE UNICORN -->
+<div class="screen" id="chooseUni">
+  <h1 class="big" id="petTitle">Which unicorn do you want to pet?</h1>
+  <div class="grid" id="uniGrid"></div>
+</div>
+
+<!-- 3. CHOOSE STORY -->
+<div class="screen" id="chooseStory">
+  <h1 class="big" id="storyTitle">Pick an adventure!</h1>
+  <div class="cards" id="storyCards"></div>
+  <button class="btn ghost small" id="backToUni">🦄 Change unicorn</button>
+</div>
+
+<!-- 4. STORY INTRO -->
+<div class="screen" id="intro">
+  <div class="uni-wrap" id="introUni" style="width:min(48vw,240px)"></div>
+  <h1 class="big" id="introTitle"></h1>
+  <p class="lead" id="introText"></p>
+  <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center">
+    <button class="btn ghost small" id="introSay">🔊 Read again</button>
+    <button class="btn" id="introGo">Start! ▶</button>
+  </div>
+  <button class="btn ghost small" id="introBack">← Pick another story</button>
+</div>
+
+<!-- 5. GAME -->
+<div class="screen" id="game">
+  <div class="topbar">
+    <button class="iconbtn" id="home" aria-label="Home">🏠</button>
+    <div class="stars" id="stars"></div>
+    <div class="bar"><div class="fill" id="fill"></div></div>
+    <button class="iconbtn" id="voice" aria-label="Sound">🔊</button>
+  </div>
+  <div class="game-area">
+    <div class="uni-col"><div class="uni-wrap" id="gameUni"></div></div>
+    <div class="q-col">
+      <div class="plabel" id="plabel"></div>
+      <div class="bubble" id="bubble">?</div>
+      <button class="say" id="say">🔊 Say it</button>
+      <div class="answers" id="answers"></div>
+    </div>
+  </div>
+</div>
+
+<!-- 6. WIN -->
+<div class="screen" id="win">
+  <div style="font-size:70px">🌈✨🌈</div>
+  <h1 class="big" id="winTitle">You did it!</h1>
+  <div class="uni-wrap" id="winUni" style="width:min(44vw,220px)"></div>
+  <p class="lead" id="winText"></p>
+  <div class="parade">🦄🎉🦄</div>
+  <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center">
+    <button class="btn" id="playAgain">Play Again ▶</button>
+    <button class="btn ghost small" id="otherStory">Choose another story</button>
+  </div>
+</div>
+
+<div class="cheer" id="cheer" style="display:none"></div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ================= state ================= */
+  var state = { name:"friend", uni:null, story:null, fed:0, goal:10, voice:true, current:null, locked:false };
+
+  /* ================= unicorns ================= */
+  var UNICORNS = [
+    {key:'sparkle',  name:'Sparkle',   body:'#fff2f8', stroke:'#e79ac2', eye:'#5b3b6b', horn:'#ffd66b', mane:['#ffb0d8','#ff5fae','#ff3d9a']},
+    {key:'blue',     name:'Blueberry', body:'#eef5ff', stroke:'#8fb8e8', eye:'#33456b', horn:'#cfe0ff', mane:['#9ad2ff','#3a9bff','#2f7fd6']},
+    {key:'rainbow',  name:'Rainbow',   body:'#fffdf5', stroke:'#e0c98f', eye:'#5b3b6b', horn:'#ffd66b', mane:['#ff5f6d','#ffb14e','#ffe14e','#5fd98a','#4ea8ff','#b06bff']},
+    {key:'butter',   name:'Buttercup', body:'#fffdf0', stroke:'#e6cf8a', eye:'#6b5a2b', horn:'#ffd66b', mane:['#ffe08a','#ffc94d','#f4a72c']},
+    {key:'mint',     name:'Minty',     body:'#f0fff9', stroke:'#8fdcc4', eye:'#2b6b5a', horn:'#ffe6a8', mane:['#a8f0dc','#39d9ad','#1fb98e']},
+    {key:'lavender', name:'Lavender',  body:'#f7f1ff', stroke:'#c3a7ee', eye:'#4b3b6b', horn:'#ffd66b', mane:['#d9c2ff','#a97bff','#8a52ff']}
+  ];
+
+  function unicornSVG(u, tag){
+    var stops = u.mane.map(function(c,i){
+      var off = u.mane.length>1 ? (i/(u.mane.length-1)*100) : 0;
+      return '<stop offset="'+off+'%" stop-color="'+c+'"/>';
+    }).join('');
+    var gid='mane_'+tag, hid='horn_'+tag;
+    return '<svg class="uni-svg" viewBox="0 0 240 230" xmlns="http://www.w3.org/2000/svg">'+
+      '<defs>'+
+        '<linearGradient id="'+gid+'" x1="0" y1="0" x2="1" y2="1">'+stops+'</linearGradient>'+
+        '<linearGradient id="'+hid+'" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="'+u.horn+'"/><stop offset="100%" stop-color="#fff6d0"/></linearGradient>'+
+      '</defs>'+
+      /* tail */
+      '<path class="tail" d="M62,118 C26,128 20,172 18,204 C42,194 54,162 76,148 Z" fill="url(#'+gid+')" stroke="'+u.stroke+'" stroke-width="2"/>'+
+      /* back legs */
+      '<rect x="74" y="150" width="18" height="56" rx="8" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2"/>'+
+      '<rect x="150" y="150" width="18" height="56" rx="8" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2"/>'+
+      '<rect x="74" y="194" width="18" height="12" rx="5" fill="'+u.stroke+'"/>'+
+      '<rect x="150" y="194" width="18" height="12" rx="5" fill="'+u.stroke+'"/>'+
+      /* front legs */
+      '<rect x="100" y="152" width="18" height="54" rx="8" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2"/>'+
+      '<rect x="126" y="152" width="18" height="54" rx="8" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2"/>'+
+      '<rect x="100" y="194" width="18" height="12" rx="5" fill="'+u.stroke+'"/>'+
+      '<rect x="126" y="194" width="18" height="12" rx="5" fill="'+u.stroke+'"/>'+
+      /* body */
+      '<ellipse cx="120" cy="138" rx="66" ry="44" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2.5"/>'+
+      /* neck */
+      '<path d="M150,118 C160,92 176,78 192,70 C202,86 197,110 176,128 Z" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2.5"/>'+
+      /* head */
+      '<ellipse cx="196" cy="72" rx="30" ry="25" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2.5"/>'+
+      /* snout */
+      '<ellipse cx="221" cy="83" rx="14" ry="11" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2.5"/>'+
+      '<circle cx="228" cy="83" r="2.2" fill="'+u.stroke+'"/>'+
+      /* ear */
+      '<path d="M181,49 L187,29 L198,47 Z" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2"/>'+
+      /* horn */
+      '<path d="M197,50 L205,12 L213,49 Z" fill="url(#'+hid+')" stroke="#e6b84d" stroke-width="1.5"/>'+
+      '<path d="M199,44 L211,44 M200,34 L210,34 M202,24 L208,24" stroke="#e6b84d" stroke-width="1.4" fill="none" opacity=".7"/>'+
+      /* mane */
+      '<path class="mane" d="M185,38 C168,54 162,90 172,122 C156,112 150,80 158,54 C166,36 178,32 185,38 Z" fill="url(#'+gid+')" stroke="'+u.stroke+'" stroke-width="2"/>'+
+      '<path d="M197,50 C189,58 185,66 190,74 C201,70 209,58 206,48 Z" fill="url(#'+gid+')"/>'+
+      /* eye */
+      '<path d="M197,63 q6,-4 11,-1" fill="none" stroke="'+u.eye+'" stroke-width="1.6" stroke-linecap="round"/>'+
+      '<circle class="eye" cx="204" cy="70" r="5.5" fill="'+u.eye+'"/>'+
+      '<circle cx="206" cy="68" r="1.8" fill="#fff"/>'+
+      /* cheek (happy) */
+      '<ellipse class="cheek" cx="211" cy="82" rx="6" ry="4" fill="#ff9fc7"/>'+
+      /* mouths */
+      '<path class="mouth mouth-happy" d="M214,90 q9,8 17,0" fill="none" stroke="'+u.eye+'" stroke-width="2.2" stroke-linecap="round"/>'+
+      '<path class="mouth mouth-sad" d="M215,95 q8,-8 16,0" fill="none" stroke="'+u.eye+'" stroke-width="2.2" stroke-linecap="round"/>'+
+      /* tears (sad) */
+      '<path class="tear" d="M202,79 q-3,7 0,10 q3,-3 0,-10 Z" fill="#7cc6ff"/>'+
+      '<path class="tear" d="M208,84 q-3,7 0,10 q3,-3 0,-10 Z" fill="#7cc6ff"/>'+
+      '</svg>';
+  }
+
+  /* ================= helpers ================= */
+  function rnd(n){ return Math.floor(Math.random()*n); }
+  function between(lo,hi){ return lo + rnd(hi-lo+1); }
+  function pick(a){ return a[rnd(a.length)]; }
+  function shuffle(a){ for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t;} return a; }
+  function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
+
+  /* ================= problem generators ================= */
+  function makeArith(max){ return function(){
+    if(Math.random()<0.5){
+      var a=between(1,Math.max(2,max-1)), b=between(1,Math.max(1,max-a));
+      return {q:a+" + "+b, ans:a+b, spoken:a+" plus "+b};
+    } else {
+      var x=between(2,max), y=between(1,x-1);
+      return {q:x+" − "+y, ans:x-y, spoken:x+" minus "+y};
+    }
+  };}
+  function makeMake10(){ return function(){
+    var a=between(1,9); return {q:a+" + ? = 10", ans:10-a, spoken:a+" plus what makes 10?"};
+  };}
+  function makeBonds(maxWhole){ return function(){
+    var whole = maxWhole<=10 ? 10 : (Math.random()<0.5?10 : maxWhole);
+    var part=between(1,whole-1);
+    return {q:whole+" is "+part+" and ?", ans:whole-part, spoken:whole+" is "+part+" and what?"};
+  };}
+  function makeSkip(steps){ return function(){
+    var step=pick(steps), start=step*between(1,4), seq=[start,start+step,start+2*step];
+    return {q:seq.join(", ")+", ?", ans:start+3*step, spoken:"count by "+step+". "+seq.join(", ")+", what comes next?"};
+  };}
+  function makeCount(){ var pool=["🍎","⭐","🍓","🌸","🍪","❄️","💎"]; return function(){
+    var n=between(2,9), e=pick(pool), row="";
+    for(var i=0;i<n;i++) row+=e;
+    return {q:row, ans:n, spoken:"How many "+"do you see?", isCount:true};
+  };}
+
+  /* ================= stories ================= */
+  var STORIES = [
+    {key:'party', em:'🧁', title:'The Frozen Cupcake Party', badge:'easy', item:'🧁', goal:10,
+     desc:'Make yummy cupcakes for the unicorn party! Nice and easy.',
+     gens:[makeArith(20), makeMake10(), makeCount()],
+     intro:function(n,u){ return u.name+' says: "Hi '+n+'! We are having a big party in the ice castle. Help me make 10 magic cupcakes by solving math treats. Yummy!"'; },
+     winTitle:'Best Party Ever!', win:function(n){ return 'The party is amazing, '+n+'! Every unicorn is dancing and eating your cupcakes. Thank you!'; }},
+
+    {key:'rescue', em:'🌉', title:'Rescue the Baby Unicorn', badge:'med', item:'⭐', goal:10,
+     desc:'A baby unicorn is lost across the frozen river. Build a magic bridge!',
+     gens:[makeArith(50), makeBonds(20), makeSkip([2,5,10])],
+     intro:function(n,u){ return u.name+' says: "Oh no, '+n+'! A little baby unicorn is stuck across the icy river. Solve the math stones with me to build a sparkling bridge and save it!"'; },
+     winTitle:'You Saved the Baby!', win:function(n){ return 'You built the whole bridge and carried the baby unicorn home, '+n+'! You are a real hero.'; }},
+
+    {key:'dragon', em:'🐉', title:"Break the Ice Dragon's Spell", badge:'hard', item:'💎', goal:10,
+     desc:'The Ice Dragon froze the kingdom! Only hard math magic can save it.',
+     gens:[makeArith(100), makeBonds(50), makeSkip([3,5,10])],
+     intro:function(n,u){ return u.name+' says: "'+n+', the Ice Dragon froze our whole kingdom in ice! Only the strongest math magic can break the spell. Smash 10 ice crystals with hard problems. I know you can do it!"'; },
+     winTitle:'The Kingdom is Saved!', win:function(n){ return 'BOOM! The spell shattered and the whole kingdom is warm again. '+n+', you are the greatest math wizard ever!'; }}
+  ];
+
+  /* ================= screen manager ================= */
+  function show(id){
+    var els=document.querySelectorAll('.screen');
+    for(var i=0;i<els.length;i++) els[i].classList.remove('active');
+    document.getElementById(id).classList.add('active');
+  }
+
+  /* ================= build pickers ================= */
+  function buildUniGrid(){
+    var g=document.getElementById('uniGrid'); g.innerHTML='';
+    UNICORNS.forEach(function(u,idx){
+      var d=document.createElement('div'); d.className='pick';
+      d.innerHTML=unicornSVG(u,'pick'+idx)+'<div class="pname">'+u.name+'</div>';
+      d.addEventListener('click',function(){
+        state.uni=u; sound('yum');
+        if(state.voice) speak('You picked '+u.name+'!');
+        buildStoryCards(); show('chooseStory');
+      });
+      g.appendChild(d);
+    });
+  }
+  function buildStoryCards(){
+    var c=document.getElementById('storyCards'); c.innerHTML='';
+    var bmap={easy:'Easy',med:'Medium',hard:'Big Kid'};
+    STORIES.forEach(function(s){
+      var d=document.createElement('div'); d.className='story';
+      d.innerHTML='<div class="em">'+s.em+'</div><div class="st">'+s.title+'</div>'+
+        '<span class="badge '+s.badge+'">'+bmap[s.badge]+'</span>'+
+        '<div class="desc">'+s.desc+'</div>';
+      d.addEventListener('click',function(){ openIntro(s); });
+      c.appendChild(d);
+    });
+  }
+
+  /* ================= intro ================= */
+  function openIntro(s){
+    state.story=s;
+    document.getElementById('introUni').innerHTML=unicornSVG(state.uni,'intro');
+    document.getElementById('introTitle').textContent=s.em+' '+s.title;
+    var txt=s.intro(state.name, state.uni);
+    document.getElementById('introText').textContent=txt;
+    show('intro');
+    if(state.voice) speak(txt);
+  }
+
+  /* ================= game ================= */
+  function startStory(){
+    state.fed=0; state.goal=state.story.goal;
+    document.getElementById('gameUni').innerHTML=unicornSVG(state.uni,'game');
+    updateProgress();
+    show('game');
+    newProblem();
+  }
+
+  function newProblem(){
+    var gen=pick(state.story.gens);
+    var p=gen(); state.current=p;
+    var opts=[p.ans], guard=0;
+    while(opts.length<3 && guard++<60){
+      var cand=p.ans+pick([-3,-2,-1,1,2,3,5,10]);
+      if(cand>=0 && opts.indexOf(cand)===-1) opts.push(cand);
+    }
+    while(opts.length<3) opts.push(p.ans+opts.length+1);
+    shuffle(opts);
+
+    var b=document.getElementById('bubble');
+    b.textContent=p.q;
+    b.className='bubble'+(p.isCount?' count':'');
+    document.getElementById('plabel').textContent = p.isCount ? 'How many?' : 'Solve it!';
+    renderAnswers(opts,p.ans);
+    if(state.voice) speak(p.spoken);
+  }
+
+  function renderAnswers(opts,correct){
+    var w=document.getElementById('answers'); w.innerHTML='';
+    var treat=state.story.item;
+    opts.forEach(function(v){
+      var btn=document.createElement('button'); btn.className='treat';
+      btn.innerHTML='<span class="cookie">'+treat+'</span>'+v;
+      btn.addEventListener('click',function(e){ choose(btn,v,correct,e); });
+      w.appendChild(btn);
+    });
+  }
+
+  function choose(btn,val,correct,e){
+    if(state.locked) return;
+    if(val===correct){
+      state.locked=true;
+      btn.classList.add('correct');
+      sparkleAt(e.clientX||innerWidth/2, e.clientY||innerHeight/2);
+      happy(); sound('yum'); whinny();
+      cheer(pick(['Yum! 🦄','Great job, '+state.name+'!','You did it!','So good!','Woohoo!','Munch munch!']));
+      state.fed++; updateProgress();
+      setTimeout(function(){
+        state.locked=false;
+        if(state.fed>=state.goal) winGame(); else newProblem();
+      },1000);
+    } else {
+      btn.classList.add('wrong'); sad(); sound('boop');
+      cheer('Try again! 💗', true);
+      setTimeout(function(){ btn.classList.remove('wrong'); },420);
+    }
+  }
+
+  /* ================= unicorn reactions ================= */
+  function happy(){ var w=document.getElementById('gameUni'); w.classList.remove('sad'); void w.offsetWidth; w.classList.add('happy'); setTimeout(function(){w.classList.remove('happy');},1000); }
+  function sad(){ var w=document.getElementById('gameUni'); w.classList.remove('happy'); void w.offsetWidth; w.classList.add('sad'); setTimeout(function(){w.classList.remove('sad');},1150); }
+
+  function cheer(msg,soft){
+    var c=document.getElementById('cheer');
+    c.textContent=msg; c.style.display='flex'; c.style.transition=''; c.style.opacity='1';
+    setTimeout(function(){ c.style.transition='opacity .4s'; c.style.opacity='0';
+      setTimeout(function(){ c.style.display='none'; },400); }, soft?650:750);
+  }
+  function sparkleAt(x,y){
+    var g=['✨','❄️','⭐','💖','🌟'];
+    for(var i=0;i<10;i++){
+      var s=document.createElement('div'); s.className='spark'; s.textContent=g[rnd(g.length)];
+      s.style.fontSize=(18+rnd(16))+'px'; s.style.left=x+'px'; s.style.top=y+'px';
+      s.style.setProperty('--dx',(rnd(240)-120)+'px'); s.style.setProperty('--dy',(-rnd(200)-40)+'px');
+      document.body.appendChild(s);
+      (function(el){ setTimeout(function(){el.remove();},900); })(s);
+    }
+  }
+  function updateProgress(){
+    document.getElementById('fill').style.width=(state.fed/state.goal*100)+'%';
+    var it=state.story?state.story.item:'⭐', s='';
+    for(var i=0;i<state.fed;i++) s+=it;
+    document.getElementById('stars').textContent=s;
+  }
+
+  /* ================= win ================= */
+  function winGame(){
+    document.getElementById('winTitle').textContent=state.story.winTitle;
+    document.getElementById('winUni').innerHTML=unicornSVG(state.uni,'win');
+    var t=state.story.win(state.name);
+    document.getElementById('winText').textContent=t;
+    show('win'); sound('win');
+    if(state.voice) speak(t);
+    for(var i=0;i<26;i++)(function(k){ setTimeout(function(){ sparkleAt(rnd(innerWidth), rnd(innerHeight/2)); },k*55); })(i);
+  }
+
+  /* ================= sound ================= */
+  var AC=null;
+  function ac(){ if(!AC){ try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){} } return AC; }
+  function tone(f,dur,type,when,vol){
+    var a=ac(); if(!a) return;
+    var o=a.createOscillator(), g=a.createGain();
+    o.type=type||'sine'; o.frequency.value=f; g.gain.value=vol||0.14;
+    o.connect(g); g.connect(a.destination);
+    var t=a.currentTime+(when||0); o.start(t);
+    g.gain.setValueAtTime(g.gain.value,t); g.gain.exponentialRampToValueAtTime(0.001,t+dur); o.stop(t+dur);
+  }
+  function sound(kind){
+    if(!state.voice && kind!=='win') { /* still allow small sounds */ }
+    if(kind==='yum'){ tone(660,.12,'triangle',0); tone(880,.15,'triangle',.09); tone(1180,.2,'triangle',.2); }
+    else if(kind==='boop'){ tone(240,.18,'sine',0,.11); tone(180,.2,'sine',.08,.1); }
+    else if(kind==='win'){ [523,659,784,1046,1318].forEach(function(f,i){ tone(f,.35,'triangle',i*.16,.15); }); }
+  }
+  function whinny(){
+    var a=ac(); if(!a) return;
+    var o=a.createOscillator(), g=a.createGain();
+    o.type='sawtooth'; o.connect(g); g.connect(a.destination);
+    var t=a.currentTime;
+    o.frequency.setValueAtTime(340,t);
+    o.frequency.linearRampToValueAtTime(720,t+.12);
+    o.frequency.linearRampToValueAtTime(520,t+.22);
+    o.frequency.linearRampToValueAtTime(300,t+.34);
+    g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.09,t+.05);
+    g.gain.exponentialRampToValueAtTime(0.0001,t+.38);
+    o.start(t); o.stop(t+.4);
+  }
+
+  /* ================= speech ================= */
+  function speak(text){
+    if(!state.voice || !('speechSynthesis' in window)) return;
+    try{ speechSynthesis.cancel(); var u=new SpeechSynthesisUtterance(text); u.rate=.92; u.pitch=1.2; speechSynthesis.speak(u); }catch(e){}
+  }
+
+  /* ================= snow ================= */
+  (function(){ var f=['❄️','✨','•'];
+    for(var i=0;i<14;i++){ var s=document.createElement('div'); s.className='snow'; s.textContent=f[rnd(f.length)];
+      s.style.left=(Math.random()*100)+'vw'; s.style.animationDuration=(6+Math.random()*8)+'s';
+      s.style.animationDelay=(-Math.random()*8)+'s'; s.style.fontSize=(12+Math.random()*18)+'px';
+      document.body.appendChild(s);
+    }})();
+
+  /* ================= wiring ================= */
+  var nameInput=document.getElementById('nameInput');
+  function goName(){
+    var v=(nameInput.value||'').trim();
+    state.name = v ? cap(v) : 'friend';
+    document.getElementById('petTitle').textContent=state.name+', which unicorn do you want to pet?';
+    buildUniGrid(); show('chooseUni');
+    if(state.voice) speak('Hi '+state.name+'! Pick a unicorn friend.');
+  }
+  document.getElementById('nameGo').addEventListener('click',goName);
+  nameInput.addEventListener('keydown',function(e){ if(e.key==='Enter') goName(); });
+
+  document.getElementById('backToUni').addEventListener('click',function(){ buildUniGrid(); show('chooseUni'); });
+  document.getElementById('introGo').addEventListener('click',startStory);
+  document.getElementById('introBack').addEventListener('click',function(){ show('chooseStory'); });
+  document.getElementById('introSay').addEventListener('click',function(){ if(state.story) speak(state.story.intro(state.name,state.uni)); });
+  document.getElementById('say').addEventListener('click',function(){ if(state.current) speak(state.current.spoken); });
+
+  document.getElementById('home').addEventListener('click',function(){ show('chooseStory'); });
+  document.getElementById('playAgain').addEventListener('click',startStory);
+  document.getElementById('otherStory').addEventListener('click',function(){ show('chooseStory'); });
+
+  var vbtn=document.getElementById('voice');
+  vbtn.addEventListener('click',function(){
+    state.voice=!state.voice; vbtn.textContent=state.voice?'🔊':'🔇';
+    document.body.classList.toggle('voiceoff',!state.voice);
+    if(!state.voice && 'speechSynthesis' in window) speechSynthesis.cancel();
+  });
+
+  document.body.addEventListener('touchstart',function once(){ ac(); document.body.removeEventListener('touchstart',once); },{passive:true});
+  nameInput.focus();
+})();
+</script>
+</body>
+</html>
