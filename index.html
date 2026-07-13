@@ -25,9 +25,10 @@
 
   /* ---------- screens ---------- */
   .screen{display:none; position:absolute; inset:0; z-index:2;
-    flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:22px; text-align:center;}
+    flex-direction:column; align-items:center; justify-content:center; gap:16px; padding:22px; text-align:center; overflow-y:auto;}
   .screen.active{display:flex;}
   h1.big{font-size:min(9vw,46px); margin:0; color:var(--purple-d); text-shadow:0 3px 0 #fff;}
+  h2.med{font-size:min(6vw,28px); margin:0; color:var(--purple-d);}
   p.lead{font-size:min(5vw,22px); margin:0; max-width:620px; line-height:1.35;}
 
   .btn{font-family:inherit; font-weight:800; color:#fff; border:none; cursor:pointer;
@@ -48,11 +49,12 @@
     border:2px solid var(--purple); background:#fff; color:var(--ink); max-width:230px;}
   .voicepick .btn.small{font-size:15px; padding:8px 14px;}
 
-  /* unicorn picker grid */
-  .grid{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; max-width:720px;}
+  /* pick grid (unicorns/creatures/collection) */
+  .grid{display:flex; flex-wrap:wrap; gap:14px; justify-content:center; max-width:760px;}
   .pick{background:#ffffffcc; border:4px solid transparent; border-radius:24px; padding:8px 8px 4px; cursor:pointer;
-    width:min(40vw,160px); box-shadow:0 6px 0 #0001; transition:transform .12s;}
+    width:min(40vw,150px); box-shadow:0 6px 0 #0001; transition:transform .12s;}
   .pick:active{transform:scale(.96);}
+  .pick.selp{border-color:var(--purple);}
   .pick .uni-svg{width:100%; height:auto;}
   .pick .pname{font-weight:800; font-size:16px; margin-top:2px; color:var(--purple-d);}
 
@@ -61,26 +63,43 @@
   .story{background:#fff; border-radius:24px; padding:18px; width:min(80vw,230px); cursor:pointer;
     box-shadow:0 8px 0 #0001,0 12px 24px #8a52ff22; border:4px solid #fff; transition:transform .12s;}
   .story:active{transform:scale(.97);}
+  .story.done{border-color:#4bc47a; background:#f2fff7;}
   .story .em{font-size:56px;}
   .story .st{font-size:20px; font-weight:800; margin:6px 0; color:var(--purple-d);}
   .badge{display:inline-block; font-size:13px; font-weight:800; color:#fff; padding:4px 12px; border-radius:999px;}
   .badge.easy{background:#4bc47a;} .badge.med{background:#f2a33c;} .badge.hard{background:#e0556f;}
   .story .desc{font-size:13px; opacity:.7; margin-top:8px; line-height:1.3;}
+  .roundprog{display:flex; align-items:center; gap:10px; font-weight:800; color:var(--purple-d); font-size:18px;}
+  .roundprog .mini{display:inline-block; width:56px; height:56px;}
+  .roundprog .mini svg{width:56px; height:56px;}
+
+  /* coloring */
+  #colorStage{width:min(64vw,320px);}
+  #colorStage .uni-svg{width:100%; height:auto;}
+  .creature.colorme{animation:none;}
+  .creature.colorme .part{cursor:pointer;}
+  .creature.colorme .part:active{opacity:.8;}
+  .part{transition:fill .12s;}
+  .palette{display:flex; flex-wrap:wrap; gap:10px; justify-content:center; max-width:520px;}
+  .swatch{width:46px; height:46px; border-radius:50%; border:3px solid #fff; cursor:pointer;
+    box-shadow:0 3px 0 #0002, 0 0 0 2px #0002;}
+  .swatch.sel{transform:scale(1.16); box-shadow:0 3px 0 #0002, 0 0 0 3px var(--purple-d);}
 
   /* ---------- game screen ---------- */
   #game{padding:0;}
-  .topbar{position:fixed; top:0; left:0; right:0; display:flex; align-items:center; gap:10px; padding:12px 14px; z-index:6;}
-  .iconbtn{font-size:24px; background:#fff; border:none; border-radius:50%; width:48px; height:48px; cursor:pointer; box-shadow:0 4px 0 #0002; line-height:1;}
+  .topbar{position:fixed; top:0; left:0; right:0; display:flex; align-items:center; gap:8px; padding:12px 14px; z-index:6;}
+  .iconbtn{font-size:22px; background:#fff; border:none; border-radius:50%; width:46px; height:46px; cursor:pointer; box-shadow:0 4px 0 #0002; line-height:1;}
   .iconbtn:active{transform:translateY(2px); box-shadow:0 2px 0 #0002;}
-  .stars{font-size:20px; font-weight:800; min-height:30px; letter-spacing:1px; flex:0 1 auto; overflow:hidden; white-space:nowrap; color:var(--purple-d);}
-  .bar{flex:1; height:20px; background:#ffffffaa; border-radius:999px; overflow:hidden; box-shadow:inset 0 2px 4px #0002; max-width:360px;}
+  .stars{font-size:18px; font-weight:800; min-height:28px; letter-spacing:1px; flex:0 1 auto; overflow:hidden; white-space:nowrap; color:var(--purple-d);}
+  .bar{flex:1; height:20px; background:#ffffffaa; border-radius:999px; overflow:hidden; box-shadow:inset 0 2px 4px #0002; max-width:320px;}
   .fill{height:100%; width:0%; background:linear-gradient(90deg,var(--pink),var(--purple)); border-radius:999px; transition:width .4s cubic-bezier(.2,1,.3,1);}
 
   .game-area{height:100%; display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px 26px; padding:70px 16px 20px;}
   .uni-col{flex:0 0 auto; width:min(46vw,280px);}
+  #game.nocompanion .uni-col{display:none;}
   .q-col{flex:1 1 320px; min-width:280px; max-width:640px; display:flex; flex-direction:column; align-items:center; gap:8px;}
 
-  /* unicorn animation */
+  /* creature / unicorn animation */
   .uni-wrap{position:relative;}
   .uni-svg{width:100%; height:auto; overflow:visible; animation:breathe 3.4s ease-in-out infinite; transform-origin:50% 90%;}
   @keyframes breathe{0%,100%{transform:translateY(0) scale(1);}50%{transform:translateY(-6px) scale(1.01);}}
@@ -148,14 +167,29 @@
   body.disco{animation:disco 1.4s ease;}
   @keyframes disco{0%,100%{filter:hue-rotate(0deg);}50%{filter:hue-rotate(300deg) saturate(1.5);}}
 
-  /* win screen */
-  #win .parade{font-size:64px; animation:trot 1s infinite;}
+  /* win / tame screen */
+  #win .parade, #tame .parade{font-size:64px; animation:trot 1s infinite;}
   @keyframes trot{0%,100%{transform:translateY(0);}50%{transform:translateY(-14px);}}
+  #tameStage{width:min(56vw,260px);}
+  #tameStage .uni-svg{width:100%; height:auto;}
+
+  /* collection bag + modal */
+  #bag{position:fixed; top:12px; right:14px; z-index:20; font-size:22px; background:#fff; border:none;
+    border-radius:50%; width:52px; height:52px; box-shadow:0 4px 0 #0002; cursor:pointer; display:none;}
+  #bag:active{transform:translateY(2px); box-shadow:0 2px 0 #0002;}
+  .modal{position:fixed; inset:0; z-index:30; background:rgba(58,42,93,.55); display:none;
+    flex-direction:column; align-items:center; justify-content:center; gap:14px; padding:20px;}
+  .modal.open{display:flex;}
+  .modal .panel{background:#fff; border-radius:26px; padding:22px; width:min(92vw,780px); max-height:82vh;
+    overflow:auto; box-shadow:0 12px 40px #0006; display:flex; flex-direction:column; align-items:center; gap:14px;}
 
   .voiceoff .say{opacity:.4;}
 </style>
 </head>
 <body>
+
+<!-- COLLECTION BAG (floating) -->
+<button id="bag" aria-label="My collection">🎒</button>
 
 <!-- 1. NAME -->
 <div class="screen active" id="name">
@@ -171,20 +205,38 @@
   <button class="btn" id="nameGo">Let's Go! ▶</button>
 </div>
 
-<!-- 2. CHOOSE UNICORN -->
-<div class="screen" id="chooseUni">
-  <h1 class="big" id="petTitle">Which unicorn do you want to pet?</h1>
-  <div class="grid" id="uniGrid"></div>
+<!-- 2. CHOOSE FAIRY CREATURE (to tame) -->
+<div class="screen" id="chooseCreature">
+  <h1 class="big" id="creatureTitle">Pick a fairy creature to tame!</h1>
+  <p class="lead">Finish all three adventures and it becomes yours to keep. 🌟</p>
+  <div class="grid" id="creatureGrid"></div>
 </div>
 
-<!-- 3. CHOOSE STORY -->
+<!-- 3. COLOR THE CREATURE -->
+<div class="screen" id="colorCreature">
+  <h2 class="med" id="colorTitle">Color your creature!</h2>
+  <p class="lead">Pick a color, then tap a part to paint it. 🎨</p>
+  <div class="uni-wrap" id="colorStage"></div>
+  <div class="palette" id="palette"></div>
+  <button class="btn" id="colorDone">Done! ▶</button>
+</div>
+
+<!-- 4. CHOOSE COMPANION (from collection) -->
+<div class="screen" id="chooseCompanion">
+  <h1 class="big" id="companionTitle">Pick a friend to cheer you on!</h1>
+  <div class="grid" id="companionGrid"></div>
+  <button class="btn ghost small" id="companionSolo">Play by myself ▶</button>
+</div>
+
+<!-- 5. CHOOSE STORY -->
 <div class="screen" id="chooseStory">
   <h1 class="big" id="storyTitle">Pick an adventure!</h1>
+  <div class="roundprog" id="roundProg"></div>
   <div class="cards" id="storyCards"></div>
-  <button class="btn ghost small" id="backToUni">🦄 Change unicorn</button>
+  <button class="btn ghost small" id="changeFriend">🐾 Change friend</button>
 </div>
 
-<!-- 4. STORY INTRO -->
+<!-- 6. STORY INTRO -->
 <div class="screen" id="intro">
   <div class="uni-wrap" id="introUni" style="width:min(48vw,240px)"></div>
   <h1 class="big" id="introTitle"></h1>
@@ -196,12 +248,13 @@
   <button class="btn ghost small" id="introBack">← Pick another story</button>
 </div>
 
-<!-- 5. GAME -->
+<!-- 7. GAME -->
 <div class="screen" id="game">
   <div class="topbar">
     <button class="iconbtn" id="home" aria-label="Home">🏠</button>
     <div class="stars" id="stars"></div>
     <div class="bar"><div class="fill" id="fill"></div></div>
+    <button class="iconbtn" id="bagGame" aria-label="Collection">🎒</button>
     <button class="iconbtn" id="voice" aria-label="Sound">🔊</button>
   </div>
   <div class="game-area">
@@ -215,7 +268,7 @@
   </div>
 </div>
 
-<!-- 6. WIN -->
+<!-- 8. WIN (single adventure) -->
 <div class="screen" id="win">
   <div style="font-size:70px">🌈✨🌈</div>
   <h1 class="big" id="winTitle">You did it!</h1>
@@ -223,8 +276,30 @@
   <p class="lead" id="winText"></p>
   <div class="parade">🦄🎉🦄</div>
   <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center">
-    <button class="btn" id="playAgain">Play Again ▶</button>
-    <button class="btn ghost small" id="otherStory">Choose another story</button>
+    <button class="btn" id="nextAdv">Next adventure ▶</button>
+    <button class="btn ghost small" id="playAgain">Play this again</button>
+  </div>
+</div>
+
+<!-- 9. TAME (all three complete) -->
+<div class="screen" id="tame">
+  <div style="font-size:64px">🎉👑🎉</div>
+  <h1 class="big" id="tameTitle">You tamed it!</h1>
+  <div class="uni-wrap" id="tameStage"></div>
+  <p class="lead" id="tameText"></p>
+  <div class="parade">✨🐉✨</div>
+  <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center">
+    <button class="btn" id="tameNew">Collect a new creature ▶</button>
+    <button class="btn ghost small" id="tameCollection">🎒 See my collection</button>
+  </div>
+</div>
+
+<!-- COLLECTION MODAL -->
+<div class="modal" id="collection">
+  <div class="panel">
+    <h1 class="big">🎒 My Creature Collection</h1>
+    <div class="grid" id="collectionGrid"></div>
+    <button class="btn" id="collectionClose">Close</button>
   </div>
 </div>
 
@@ -235,74 +310,13 @@
   "use strict";
 
   /* ================= state ================= */
-  var state = { name:"friend", uni:null, story:null, fed:0, goal:20, voice:true,
-                current:null, currentFrame:"", locked:false,
-                voiceList:[], voiceObj:null, surpriseAt:null };
-
-  /* ================= unicorns ================= */
-  var UNICORNS = [
-    {key:'sparkle',  name:'Sparkle',   body:'#fff2f8', stroke:'#e79ac2', eye:'#5b3b6b', horn:'#ffd66b', mane:['#ffb0d8','#ff5fae','#ff3d9a']},
-    {key:'blue',     name:'Blueberry', body:'#eef5ff', stroke:'#8fb8e8', eye:'#33456b', horn:'#cfe0ff', mane:['#9ad2ff','#3a9bff','#2f7fd6']},
-    {key:'rainbow',  name:'Rainbow',   body:'#fffdf5', stroke:'#e0c98f', eye:'#5b3b6b', horn:'#ffd66b', mane:['#ff5f6d','#ffb14e','#ffe14e','#5fd98a','#4ea8ff','#b06bff']},
-    {key:'butter',   name:'Buttercup', body:'#fffdf0', stroke:'#e6cf8a', eye:'#6b5a2b', horn:'#ffd66b', mane:['#ffe08a','#ffc94d','#f4a72c']},
-    {key:'mint',     name:'Minty',     body:'#f0fff9', stroke:'#8fdcc4', eye:'#2b6b5a', horn:'#ffe6a8', mane:['#a8f0dc','#39d9ad','#1fb98e']},
-    {key:'lavender', name:'Lavender',  body:'#f7f1ff', stroke:'#c3a7ee', eye:'#4b3b6b', horn:'#ffd66b', mane:['#d9c2ff','#a97bff','#8a52ff']}
-  ];
-
-  function unicornSVG(u, tag){
-    var stops = u.mane.map(function(c,i){
-      var off = u.mane.length>1 ? (i/(u.mane.length-1)*100) : 0;
-      return '<stop offset="'+off+'%" stop-color="'+c+'"/>';
-    }).join('');
-    var gid='mane_'+tag, hid='horn_'+tag;
-    return '<svg class="uni-svg" viewBox="0 0 240 230" xmlns="http://www.w3.org/2000/svg">'+
-      '<defs>'+
-        '<linearGradient id="'+gid+'" x1="0" y1="0" x2="1" y2="1">'+stops+'</linearGradient>'+
-        '<linearGradient id="'+hid+'" x1="0" y1="1" x2="0" y2="0"><stop offset="0%" stop-color="'+u.horn+'"/><stop offset="100%" stop-color="#fff6d0"/></linearGradient>'+
-      '</defs>'+
-      /* tail */
-      '<path class="tail" d="M62,118 C26,128 20,172 18,204 C42,194 54,162 76,148 Z" fill="url(#'+gid+')" stroke="'+u.stroke+'" stroke-width="2"/>'+
-      /* back legs */
-      '<rect x="74" y="150" width="18" height="56" rx="8" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2"/>'+
-      '<rect x="150" y="150" width="18" height="56" rx="8" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2"/>'+
-      '<rect x="74" y="194" width="18" height="12" rx="5" fill="'+u.stroke+'"/>'+
-      '<rect x="150" y="194" width="18" height="12" rx="5" fill="'+u.stroke+'"/>'+
-      /* front legs */
-      '<rect x="100" y="152" width="18" height="54" rx="8" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2"/>'+
-      '<rect x="126" y="152" width="18" height="54" rx="8" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2"/>'+
-      '<rect x="100" y="194" width="18" height="12" rx="5" fill="'+u.stroke+'"/>'+
-      '<rect x="126" y="194" width="18" height="12" rx="5" fill="'+u.stroke+'"/>'+
-      /* body */
-      '<ellipse cx="120" cy="138" rx="66" ry="44" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2.5"/>'+
-      /* neck */
-      '<path d="M150,118 C160,92 176,78 192,70 C202,86 197,110 176,128 Z" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2.5"/>'+
-      /* head */
-      '<ellipse cx="196" cy="72" rx="30" ry="25" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2.5"/>'+
-      /* snout */
-      '<ellipse cx="221" cy="83" rx="14" ry="11" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2.5"/>'+
-      '<circle cx="228" cy="83" r="2.2" fill="'+u.stroke+'"/>'+
-      /* ear */
-      '<path d="M181,49 L187,29 L198,47 Z" fill="'+u.body+'" stroke="'+u.stroke+'" stroke-width="2"/>'+
-      /* horn */
-      '<path d="M197,50 L205,12 L213,49 Z" fill="url(#'+hid+')" stroke="#e6b84d" stroke-width="1.5"/>'+
-      '<path d="M199,44 L211,44 M200,34 L210,34 M202,24 L208,24" stroke="#e6b84d" stroke-width="1.4" fill="none" opacity=".7"/>'+
-      /* mane */
-      '<path class="mane" d="M185,38 C168,54 162,90 172,122 C156,112 150,80 158,54 C166,36 178,32 185,38 Z" fill="url(#'+gid+')" stroke="'+u.stroke+'" stroke-width="2"/>'+
-      '<path d="M197,50 C189,58 185,66 190,74 C201,70 209,58 206,48 Z" fill="url(#'+gid+')"/>'+
-      /* eye */
-      '<path d="M197,63 q6,-4 11,-1" fill="none" stroke="'+u.eye+'" stroke-width="1.6" stroke-linecap="round"/>'+
-      '<circle class="eye" cx="204" cy="70" r="5.5" fill="'+u.eye+'"/>'+
-      '<circle cx="206" cy="68" r="1.8" fill="#fff"/>'+
-      /* cheek (happy) */
-      '<ellipse class="cheek" cx="211" cy="82" rx="6" ry="4" fill="#ff9fc7"/>'+
-      /* mouths */
-      '<path class="mouth mouth-happy" d="M214,90 q9,8 17,0" fill="none" stroke="'+u.eye+'" stroke-width="2.2" stroke-linecap="round"/>'+
-      '<path class="mouth mouth-sad" d="M215,95 q8,-8 16,0" fill="none" stroke="'+u.eye+'" stroke-width="2.2" stroke-linecap="round"/>'+
-      /* tears (sad) */
-      '<path class="tear" d="M202,79 q-3,7 0,10 q3,-3 0,-10 Z" fill="#7cc6ff"/>'+
-      '<path class="tear" d="M208,84 q-3,7 0,10 q3,-3 0,-10 Z" fill="#7cc6ff"/>'+
-      '</svg>';
-  }
+  var state = { name:"friend", voice:true, current:null, currentFrame:"", locked:false,
+                voiceList:[], voiceObj:null, surpriseAt:null,
+                story:null, fed:0, goal:20,
+                round:null,        /* {creatureKey, variant, colors:{}, done:[storyKey]} */
+                companion:null,    /* {key, variant, colors} or null */
+                collection:[],     /* [{key, variant, colors}] */
+                paintColor:"#ff5b6e" };
 
   /* ================= helpers ================= */
   function rnd(n){ return Math.floor(Math.random()*n); }
@@ -310,54 +324,187 @@
   function pick(a){ return a[rnd(a.length)]; }
   function shuffle(a){ for(var i=a.length-1;i>0;i--){var j=rnd(i+1),t=a[i];a[i]=a[j];a[j]=t;} return a; }
   function cap(s){ return s.charAt(0).toUpperCase()+s.slice(1); }
-  function lerp(a,b,t){ return Math.round(a+(b-a)*t); }   /* difficulty ramp: t goes 0 -> 1 across an adventure */
+  function lerp(a,b,t){ return Math.round(a+(b-a)*t); }
+  function each(list,fn){ Array.prototype.forEach.call(list,fn); }
+
+  /* ================= fairy creatures ================= */
+  var DARK='#3a2a5d';
+  var PALETTE=['#ff5b6e','#ff8f3f','#ffd23f','#ffe884','#8ee04e','#39d9ad','#4bc0ff','#3a6bff',
+               '#8a52ff','#c86bff','#ff6fb5','#ffb0d8','#8a5a3c','#3a2a5d','#ffffff'];
+
+  /* fill resolver: use painted color, else white in b&w mode, else a soft default */
+  function makeFill(colors,bw){ return function(id,def){ if(colors&&colors[id]) return colors[id]; return bw?'#ffffff':(def||'#ffffff'); }; }
+  function P(id,F,def){ return 'class="part" data-part="'+id+'" fill="'+F(id,def)+'"'; }
+
+  /* shared cute face with reaction hooks (cheeks/mouths/tears toggled by CSS) */
+  function face(cx,cy,r){
+    var e=r*0.30;
+    return ''+
+      '<circle cx="'+(cx-r)+'" cy="'+cy+'" r="'+e+'" fill="'+DARK+'"/>'+
+      '<circle cx="'+(cx-r+e*0.4)+'" cy="'+(cy-e*0.4)+'" r="'+(e*0.35)+'" fill="#fff"/>'+
+      '<circle cx="'+(cx+r)+'" cy="'+cy+'" r="'+e+'" fill="'+DARK+'"/>'+
+      '<circle cx="'+(cx+r+e*0.4)+'" cy="'+(cy-e*0.4)+'" r="'+(e*0.35)+'" fill="#fff"/>'+
+      '<ellipse class="cheek" cx="'+(cx-r*1.5)+'" cy="'+(cy+r*0.55)+'" rx="'+(r*0.4)+'" ry="'+(r*0.26)+'" fill="#ff9fc7"/>'+
+      '<ellipse class="cheek" cx="'+(cx+r*1.5)+'" cy="'+(cy+r*0.55)+'" rx="'+(r*0.4)+'" ry="'+(r*0.26)+'" fill="#ff9fc7"/>'+
+      '<path class="mouth-happy" d="M'+(cx-r*0.55)+' '+(cy+r*0.8)+' q'+(r*0.55)+' '+(r*0.6)+' '+(r*1.1)+' 0" fill="none" stroke="'+DARK+'" stroke-width="2.4" stroke-linecap="round"/>'+
+      '<path class="mouth-sad" d="M'+(cx-r*0.55)+' '+(cy+r*1.05)+' q'+(r*0.55)+' -'+(r*0.6)+' '+(r*1.1)+' 0" fill="none" stroke="'+DARK+'" stroke-width="2.4" stroke-linecap="round"/>'+
+      '<path class="tear" d="M'+(cx-r*1.2)+' '+(cy+r*0.3)+' q-3 7 0 10 q3 -3 0 -10 Z" fill="#7cc6ff"/>'+
+      '<path class="tear" d="M'+(cx+r*1.2)+' '+(cy+r*0.3)+' q-3 7 0 10 q3 -3 0 -10 Z" fill="#7cc6ff"/>';
+  }
+
+  function drawDragon(F,v){
+    var out='';
+    var wing = v.wing==='l' ? 'M64 116 C22 96 16 152 44 158 C60 152 62 132 80 128 Z'
+             : v.wing==='s' ? 'M68 118 C44 108 38 142 56 148 C66 144 68 132 82 128 Z'
+             :                'M66 116 C30 100 24 148 46 154 C60 149 62 131 81 128 Z';
+    out+='<path '+P('wings',F)+' stroke="'+DARK+'" stroke-width="3" d="'+wing+'"/>';
+    out+='<path '+P('wings',F)+' stroke="'+DARK+'" stroke-width="3" transform="translate(200,0) scale(-1,1)" d="'+wing+'"/>';
+    out+='<path '+P('body',F)+' stroke="'+DARK+'" stroke-width="3" d="M120 168 C150 176 156 196 150 202 C140 196 126 190 112 182 Z"/>';
+    out+='<ellipse '+P('body',F)+' stroke="'+DARK+'" stroke-width="3" cx="80" cy="184" rx="17" ry="15"/>';
+    out+='<ellipse '+P('body',F)+' stroke="'+DARK+'" stroke-width="3" cx="120" cy="184" rx="17" ry="15"/>';
+    out+='<ellipse '+P('body',F)+' stroke="'+DARK+'" stroke-width="3" cx="100" cy="148" rx="50" ry="44"/>';
+    out+='<ellipse '+P('belly',F,'#fff4d8')+' stroke="'+DARK+'" stroke-width="2" cx="100" cy="158" rx="28" ry="30"/>';
+    var n=v.spikes||4;
+    for(var i=0;i<n;i++){ var x=100-(n-1)*7+i*14; out+='<path '+P('spikes',F,'#ffd23f')+' stroke="'+DARK+'" stroke-width="2" d="M'+(x-7)+' 60 L'+x+' 40 L'+(x+7)+' 60 Z"/>'; }
+    out+='<circle '+P('body',F)+' stroke="'+DARK+'" stroke-width="3" cx="100" cy="86" r="34"/>';
+    var horn = v.horn==='curved' ? ['M80 60 q-16 -8 -8 -28 q12 8 12 24 Z','M120 60 q16 -8 8 -28 q-12 8 -12 24 Z']
+                                 : ['M80 58 L74 30 L90 54 Z','M120 58 L126 30 L110 54 Z'];
+    out+='<path '+P('horns',F,'#ffe08a')+' stroke="'+DARK+'" stroke-width="2" d="'+horn[0]+'"/>';
+    out+='<path '+P('horns',F,'#ffe08a')+' stroke="'+DARK+'" stroke-width="2" d="'+horn[1]+'"/>';
+    out+='<circle cx="94" cy="100" r="2.4" fill="'+DARK+'"/><circle cx="106" cy="100" r="2.4" fill="'+DARK+'"/>';
+    out+=face(100,84,11);
+    return out;
+  }
+
+  function drawPhoenix(F,v){
+    var out='', tn=v.tail||3, tl=(v.wing==='l')?58:46;
+    for(var i=0;i<tn;i++){ var ang=(i-(tn-1)/2)*15;
+      out+='<path '+P('tail',F,'#ff8f3f')+' stroke="'+DARK+'" stroke-width="2.4" transform="rotate('+ang+' 100 166)" d="M100 166 q-9 '+tl+' 0 '+(tl+14)+' q9 -14 0 -'+(tl+14)+' Z"/>'; }
+    out+='<path '+P('wings',F,'#ffb14e')+' stroke="'+DARK+'" stroke-width="3" d="M80 122 C42 112 36 152 62 158 C74 152 76 136 88 132 Z"/>';
+    out+='<path '+P('wings',F,'#ffb14e')+' stroke="'+DARK+'" stroke-width="3" transform="translate(200,0) scale(-1,1)" d="M80 122 C42 112 36 152 62 158 C74 152 76 136 88 132 Z"/>';
+    out+='<ellipse '+P('body',F,'#ffd23f')+' stroke="'+DARK+'" stroke-width="3" cx="100" cy="130" rx="34" ry="42"/>';
+    out+='<path stroke="'+DARK+'" stroke-width="3" fill="none" d="M92 170 v14 M108 170 v14"/>';
+    out+='<circle '+P('body',F,'#ffd23f')+' stroke="'+DARK+'" stroke-width="3" cx="100" cy="82" r="26"/>';
+    var cn=v.crest||3;
+    for(var j=0;j<cn;j++){ var cx=100-(cn-1)*8+j*16; out+='<path '+P('crest',F,'#ff5b6e')+' stroke="'+DARK+'" stroke-width="2" d="M'+cx+' 58 q-4 -22 0 -30 q6 10 6 30 Z"/>'; }
+    out+='<path '+P('beak',F,'#ffcf5a')+' stroke="'+DARK+'" stroke-width="2" d="M100 92 l14 7 l-14 7 Z"/>';
+    out+=face(100,80,9);
+    return out;
+  }
+
+  function drawPixie(F,v){
+    var out='';
+    var w = v.wing==='round' ? ['M96 110 C50 88 46 142 86 138 Z','M104 110 C150 88 154 142 114 138 Z']
+                             : ['M96 108 C58 76 40 132 86 134 Z','M104 108 C142 76 160 132 114 134 Z'];
+    out+='<path '+P('wings',F,'#eaf3ff')+' stroke="'+DARK+'" stroke-width="2.5" d="'+w[0]+'"/>';
+    out+='<path '+P('wings',F,'#eaf3ff')+' stroke="'+DARK+'" stroke-width="2.5" d="'+w[1]+'"/>';
+    out+='<path '+P('dress',F,'#ff8fc7')+' stroke="'+DARK+'" stroke-width="3" d="M100 106 L74 190 L126 190 Z"/>';
+    out+='<path stroke="'+DARK+'" stroke-width="4" fill="none" stroke-linecap="round" d="M92 190 v12 M108 190 v12"/>';
+    out+='<path '+P('skin',F,'#ffe0c0')+' stroke="'+DARK+'" stroke-width="3" fill="none" d="M82 124 q-16 6 -18 22"/>';
+    out+='<path '+P('skin',F,'#ffe0c0')+' stroke="'+DARK+'" stroke-width="3" fill="none" d="M118 124 q16 6 18 22"/>';
+    out+='<circle '+P('skin',F,'#ffe0c0')+' stroke="'+DARK+'" stroke-width="3" cx="100" cy="80" r="26"/>';
+    var hair = v.hair==='buns'
+      ? '<circle '+P('hair',F,'#8a5a3c')+' stroke="'+DARK+'" stroke-width="2" cx="74" cy="66" r="12"/><circle '+P('hair',F,'#8a5a3c')+' stroke="'+DARK+'" stroke-width="2" cx="126" cy="66" r="12"/><path '+P('hair',F,'#8a5a3c')+' d="M76 62 a24 20 0 0 1 48 0 q-24 -12 -48 0 Z"/>'
+      : '<path '+P('hair',F,'#8a5a3c')+' stroke="'+DARK+'" stroke-width="2" d="M74 66 q-6 40 4 54 q6 -30 22 -34 q16 4 22 34 q10 -14 4 -54 q-26 -18 -56 0 Z"/>';
+    out+=hair;
+    var hat = v.hat==='crown'
+      ? '<path '+P('hat',F,'#ffd23f')+' stroke="'+DARK+'" stroke-width="2" d="M82 52 L88 38 L100 48 L112 38 L118 52 Z"/>'
+      : '<circle '+P('hat',F,'#ff5b6e')+' stroke="'+DARK+'" stroke-width="2" cx="123" cy="58" r="9"/>';
+    out+=hat;
+    out+=face(100,80,9);
+    return out;
+  }
+
+  function drawUnicorn(F,v){
+    var out='';
+    if(v.wings){
+      out+='<path '+P('wings',F,'#eaf3ff')+' stroke="'+DARK+'" stroke-width="3" d="M96 122 C56 98 40 148 86 146 Z"/>';
+      out+='<path '+P('wings',F,'#eaf3ff')+' stroke="'+DARK+'" stroke-width="3" transform="translate(200,0) scale(-1,1)" d="M96 122 C56 98 40 148 86 146 Z"/>';
+    }
+    out+='<path '+P('mane',F,'#ffd1e8')+' stroke="'+DARK+'" stroke-width="2.5" d="M56 152 q-24 8 -26 40 q22 -8 34 -26 Z"/>';
+    out+='<rect '+P('body',F)+' stroke="'+DARK+'" stroke-width="2.5" x="76" y="168" width="14" height="34" rx="6"/>';
+    out+='<rect '+P('body',F)+' stroke="'+DARK+'" stroke-width="2.5" x="110" y="168" width="14" height="34" rx="6"/>';
+    out+='<ellipse '+P('body',F)+' stroke="'+DARK+'" stroke-width="3" cx="98" cy="150" rx="46" ry="34"/>';
+    out+='<circle '+P('body',F)+' stroke="'+DARK+'" stroke-width="3" cx="118" cy="98" r="26"/>';
+    var apex = v.horn==='long' ? 60 : 72;
+    out+='<path '+P('horn',F,'#ffd23f')+' stroke="'+DARK+'" stroke-width="2" d="M118 '+apex+' L111 80 L125 80 Z"/>';
+    var mane = v.mane==='curly'
+      ? '<path '+P('mane',F,'#ffd1e8')+' stroke="'+DARK+'" stroke-width="2" d="M104 78 q-16 6 -14 28 q-14 -2 -8 20 q10 -6 18 -6 q4 -20 16 -26 Z"/>'
+      : '<path '+P('mane',F,'#ffd1e8')+' stroke="'+DARK+'" stroke-width="2" d="M106 76 q-18 8 -16 40 q10 -8 18 -8 q4 -20 16 -26 Z"/>';
+    out+=mane;
+    out+=face(118,96,9);
+    return out;
+  }
+
+  function drawKitten(F,v){
+    var out='';
+    out+='<path '+P('wings',F,'#eaf3ff')+' stroke="'+DARK+'" stroke-width="2.5" d="M84 122 C48 106 42 148 78 148 Z"/>';
+    out+='<path '+P('wings',F,'#eaf3ff')+' stroke="'+DARK+'" stroke-width="2.5" transform="translate(200,0) scale(-1,1)" d="M84 122 C48 106 42 148 78 148 Z"/>';
+    var tail = v.tail==='curl' ? 'M138 168 q30 -6 26 -34 q-10 18 -22 16' : 'M138 172 q34 8 42 -8';
+    out+='<path stroke="'+DARK+'" stroke-width="6" fill="none" stroke-linecap="round" d="'+tail+'"/>';
+    out+='<ellipse '+P('body',F)+' stroke="'+DARK+'" stroke-width="3" cx="100" cy="152" rx="40" ry="40"/>';
+    out+='<ellipse '+P('tummy',F,'#fff2f8')+' stroke="'+DARK+'" stroke-width="2" cx="100" cy="160" rx="20" ry="24"/>';
+    out+='<circle '+P('body',F)+' stroke="'+DARK+'" stroke-width="3" cx="100" cy="92" r="34"/>';
+    out+='<path '+P('body',F)+' stroke="'+DARK+'" stroke-width="2.5" d="M76 70 L68 40 L96 60 Z"/>';
+    out+='<path '+P('body',F)+' stroke="'+DARK+'" stroke-width="2.5" d="M124 70 L132 40 L104 60 Z"/>';
+    out+='<path '+P('ears',F,'#ff9fc7')+' d="M78 66 L74 50 L90 62 Z"/>';
+    out+='<path '+P('ears',F,'#ff9fc7')+' d="M122 66 L126 50 L110 62 Z"/>';
+    out+='<path stroke="'+DARK+'" stroke-width="1.6" fill="none" d="M70 96 h-16 M70 104 h-14 M130 96 h16 M130 104 h14"/>';
+    out+=face(100,88,10);
+    out+='<path d="M96 96 l8 0 l-4 5 Z" fill="'+DARK+'"/>';
+    return out;
+  }
+
+  var CREATURES=[
+    {key:'dragon',  name:'Dragon',     draw:drawDragon},
+    {key:'phoenix', name:'Phoenix',    draw:drawPhoenix},
+    {key:'pixie',   name:'Pixie',      draw:drawPixie},
+    {key:'unicorn', name:'Unicorn',    draw:drawUnicorn},
+    {key:'kitten',  name:'Sky Kitten', draw:drawKitten}
+  ];
+  function creatureByKey(k){ for(var i=0;i<CREATURES.length;i++) if(CREATURES[i].key===k) return CREATURES[i]; return CREATURES[0]; }
+  function variantFor(key){
+    switch(key){
+      case 'dragon':  return {spikes:between(3,6), wing:pick(['s','m','l']), horn:pick(['straight','curved'])};
+      case 'phoenix': return {tail:between(3,5), crest:between(2,4), wing:pick(['m','l'])};
+      case 'pixie':   return {wing:pick(['round','pointed']), hair:pick(['down','buns']), hat:pick(['crown','flower'])};
+      case 'unicorn': return {wings:Math.random()<0.5, mane:pick(['straight','curly']), horn:pick(['short','long'])};
+      case 'kitten':  return {wing:pick(['s','big']), tail:pick(['curl','swish'])};
+      default: return {};
+    }
+  }
+  function creatureSVG(key, colors, variant, extraClass, bw){
+    var cr=creatureByKey(key);
+    var F=makeFill(colors||{}, bw);
+    return '<svg class="uni-svg creature '+(extraClass||'')+'" viewBox="0 0 200 210" xmlns="http://www.w3.org/2000/svg">'+
+      cr.draw(F, variant||{})+'</svg>';
+  }
 
   /* ================= problem generators (each takes lvl 0..1) ================= */
   function makeArith(loMax,hiMax){ return function(lvl){
     var max=Math.max(3,lerp(loMax,hiMax,lvl));
-    if(Math.random()<0.5){
-      var a=between(1,Math.max(2,max-1)), b=between(1,Math.max(1,max-a));
+    if(Math.random()<0.5){ var a=between(1,Math.max(2,max-1)), b=between(1,Math.max(1,max-a));
       return {q:a+" + "+b, ans:a+b, spoken:a+" plus "+b};
-    } else {
-      var x=between(2,max), y=between(1,x-1);
-      return {q:x+" − "+y, ans:x-y, spoken:x+" minus "+y};
-    }
+    } else { var x=between(2,max), y=between(1,x-1);
+      return {q:x+" − "+y, ans:x-y, spoken:x+" minus "+y}; }
   };}
-  function makeMakeN(){ return function(lvl){
-    var target = lvl<0.5 ? 10 : pick([10,20]);
-    var a=between(1,target-1);
-    return {q:a+" + ? = "+target, ans:target-a, spoken:a+" plus what makes "+target+"?"};
-  };}
-  function makeBonds(loWhole,hiWhole){ return function(lvl){
-    var whole=Math.max(6,lerp(loWhole,hiWhole,lvl));
-    var part=between(1,whole-1);
-    return {q:whole+" is "+part+" and ?", ans:whole-part, spoken:whole+" is "+part+" and what?"};
-  };}
-  function makeSkip(steps){ return function(lvl){
-    var step=pick(steps), start=step*between(1,5), seq=[start,start+step,start+2*step];
-    return {q:seq.join(", ")+", ?", ans:start+3*step, spoken:"count by "+step+". "+seq.join(", ")+", what comes next?"};
-  };}
+  function makeMakeN(){ return function(lvl){ var target=lvl<0.5?10:pick([10,20]); var a=between(1,target-1);
+    return {q:a+" + ? = "+target, ans:target-a, spoken:a+" plus what makes "+target+"?"}; };}
+  function makeBonds(loWhole,hiWhole){ return function(lvl){ var whole=Math.max(6,lerp(loWhole,hiWhole,lvl)); var part=between(1,whole-1);
+    return {q:whole+" is "+part+" and ?", ans:whole-part, spoken:whole+" is "+part+" and what?"}; };}
+  function makeSkip(steps){ return function(lvl){ var step=pick(steps), start=step*between(1,5), seq=[start,start+step,start+2*step];
+    return {q:seq.join(", ")+", ?", ans:start+3*step, spoken:"count by "+step+". "+seq.join(", ")+", what comes next?"}; };}
   function makeCount(){ var pool=["🍎","⭐","🍓","🌸","🍪","❄️","💎","🧁"]; return function(lvl){
-    var hi = lvl<0.5 ? 9 : 12, n=between(3,hi), e=pick(pool), row="";
-    for(var i=0;i<n;i++) row+=e;
-    return {q:row, ans:n, spoken:"How many do you see?", isCount:true};
-  };}
-  function makeDoubles(loMax,hiMax){ return function(lvl){
-    var m=Math.max(2,lerp(loMax,hiMax,lvl)), a=between(2,m);
-    return {q:a+" + "+a, ans:a+a, spoken:"double "+a+". "+a+" plus "+a};
-  };}
-  function makeAdd3(loMax,hiMax){ return function(lvl){
-    var m=Math.max(2,lerp(loMax,hiMax,lvl));
-    var a=between(1,m), b=between(1,m), c=between(1,m);
-    return {q:a+" + "+b+" + "+c, ans:a+b+c, spoken:a+" plus "+b+" plus "+c};
-  };}
-  function makeMult(){ return function(lvl){
-    var a=pick([2,3,4,5,10]);
-    var b = a===10 ? between(1,5) : between(2, lvl<0.5?5:6);
-    return {q:a+" × "+b, ans:a*b, spoken:a+" times "+b};
-  };}
+    var hi=lvl<0.5?9:12, n=between(3,hi), e=pick(pool), row="";
+    for(var i=0;i<n;i++) row+=e; return {q:row, ans:n, spoken:"How many do you see?", isCount:true}; };}
+  function makeDoubles(loMax,hiMax){ return function(lvl){ var m=Math.max(2,lerp(loMax,hiMax,lvl)), a=between(2,m);
+    return {q:a+" + "+a, ans:a+a, spoken:"double "+a+". "+a+" plus "+a}; };}
+  function makeAdd3(loMax,hiMax){ return function(lvl){ var m=Math.max(2,lerp(loMax,hiMax,lvl));
+    var a=between(1,m),b=between(1,m),c=between(1,m); return {q:a+" + "+b+" + "+c, ans:a+b+c, spoken:a+" plus "+b+" plus "+c}; };}
+  function makeMult(){ return function(lvl){ var a=pick([2,3,4,5,10]); var b=a===10?between(1,5):between(2,lvl<0.5?5:6);
+    return {q:a+" × "+b, ans:a*b, spoken:a+" times "+b}; };}
 
-  /* ================= stories (20 questions each, harder, with themed frames) ================= */
+  /* ================= stories ================= */
   var STORIES = [
     {key:'party', em:'🧁', title:'The Frozen Cupcake Party', badge:'easy', item:'🧁', goal:20,
      desc:'Make yummy cupcakes for the unicorn party! Nice and easy.',
@@ -365,7 +512,7 @@
      frames:['Sprinkle the cupcakes! ✨','The oven says ding! 🔔','Add the magic sugar! 🍬','Frost this one pretty! 🧁',
              'Elsa loves this flavor! ❄️','Make it sparkle! ⭐','Count the sweet treats! 🍓','Almost party time! 🎈'],
      parade:'🧁🎉🦄',
-     intro:function(n,u){ return u.name+' says: "Hi '+n+'! We are having a big party in the ice castle. Help me make 20 magic cupcakes by solving math treats. Yummy!"'; },
+     intro:function(n){ return 'Hi '+n+'! We are having a big party in the ice castle. Help make 20 magic cupcakes by solving math treats. Yummy!'; },
      winTitle:'Best Party Ever!', win:function(n){ return 'The party is amazing, '+n+'! Every unicorn is dancing and eating your cupcakes. Thank you!'; }},
 
     {key:'rescue', em:'🌉', title:'Rescue the Baby Unicorn', badge:'med', item:'⭐', goal:20,
@@ -374,7 +521,7 @@
      frames:['Place the next ice stone! 🧊','The baby is waiting! 🦄','Build the bridge strong! 🌉','Step across carefully! 👣',
              'The river is freezing! ❄️','You are getting closer! 💗','Freeze a new step! ✨','Be brave and solve it! 💪'],
      parade:'🦄💖🦄',
-     intro:function(n,u){ return u.name+' says: "Oh no, '+n+'! A little baby unicorn is stuck across the icy river. Solve 20 math stones with me to build a sparkling bridge and save it!"'; },
+     intro:function(n){ return 'Oh no, '+n+'! A little baby unicorn is stuck across the icy river. Solve 20 math stones to build a sparkling bridge and save it!'; },
      winTitle:'You Saved the Baby!', win:function(n){ return 'You built the whole bridge and carried the baby unicorn home, '+n+'! You are a real hero.'; }},
 
     {key:'dragon', em:'🐉', title:"Break the Ice Dragon's Spell", badge:'hard', item:'💎', goal:20,
@@ -383,50 +530,142 @@
      frames:['Charge the ice crystal! 💎','The dragon is watching! 🐉','Break the frozen spell! ✨','Cast your math magic! 🔮',
              'Be strong and smart! 💪','Melt the ice wall! 🔥','Almost free the kingdom! 👑','Blast it with numbers! ⚡'],
      parade:'🐉🌈☀️',
-     intro:function(n,u){ return u.name+' says: "'+n+', the Ice Dragon froze our whole kingdom in ice! Only the strongest math magic can break the spell. Smash 20 ice crystals with hard problems. I know you can do it!"'; },
+     intro:function(n){ return n+', the Ice Dragon froze our whole kingdom in ice! Only the strongest math magic can break the spell. Smash 20 ice crystals with hard problems. I know you can do it!'; },
      winTitle:'The Kingdom is Saved!', win:function(n){ return 'BOOM! The spell shattered and the whole kingdom is warm again. '+n+', you are the greatest math wizard ever!'; }}
   ];
+
+  /* ================= persistence ================= */
+  function saveAll(){
+    try{
+      localStorage.setItem('ange_collection', JSON.stringify(state.collection));
+      localStorage.setItem('ange_round', JSON.stringify({round:state.round, companion:state.companion}));
+      localStorage.setItem('ange_name', state.name);
+    }catch(e){}
+  }
+  function loadAll(){
+    try{
+      var col=JSON.parse(localStorage.getItem('ange_collection')||'[]'); if(Array.isArray(col)) state.collection=col;
+      var r=JSON.parse(localStorage.getItem('ange_round')||'null'); if(r&&r.round){ state.round=r.round; state.companion=r.companion||null; }
+      var nm=localStorage.getItem('ange_name'); if(nm) state.name=nm;
+    }catch(e){}
+  }
 
   /* ================= screen manager ================= */
   function show(id){
     var els=document.querySelectorAll('.screen');
     for(var i=0;i<els.length;i++) els[i].classList.remove('active');
     document.getElementById(id).classList.add('active');
+    var bag=document.getElementById('bag');
+    if(bag) bag.style.display = (id==='name'||id==='game') ? 'none' : 'block';
   }
 
-  /* ================= build pickers ================= */
-  function buildUniGrid(){
-    var g=document.getElementById('uniGrid'); g.innerHTML='';
-    UNICORNS.forEach(function(u,idx){
+  /* ================= companion / round display ================= */
+  function companionOrRoundSVG(){
+    if(state.companion) return creatureSVG(state.companion.key,state.companion.colors,state.companion.variant);
+    if(state.round) return creatureSVG(state.round.creatureKey,state.round.colors,state.round.variant);
+    return '';
+  }
+  function miniCreature(){ if(!state.round) return ''; return '<span class="mini">'+creatureSVG(state.round.creatureKey,state.round.colors,state.round.variant)+'</span>'; }
+
+  /* ================= pick creature (to tame) ================= */
+  function openChooseCreature(){
+    var g=document.getElementById('creatureGrid'); g.innerHTML='';
+    var poolC=shuffle(CREATURES.slice());
+    var count=Math.min(4, poolC.length);
+    poolC.slice(0,count).forEach(function(cr){
+      var variant=variantFor(cr.key);
       var d=document.createElement('div'); d.className='pick';
-      d.innerHTML=unicornSVG(u,'pick'+idx)+'<div class="pname">'+u.name+'</div>';
+      d.innerHTML=creatureSVG(cr.key, {}, variant, '', true)+'<div class="pname">'+cr.name+'</div>';
+      d.addEventListener('click',function(){ pickCreature(cr.key, variant); });
+      g.appendChild(d);
+    });
+    document.getElementById('creatureTitle').textContent=state.name+', pick a creature to tame!';
+    show('chooseCreature');
+    if(state.voice) speak(state.name+', pick a fairy creature to tame! Finish all three adventures to make it yours.');
+  }
+  function pickCreature(key, variant){
+    state.round={ creatureKey:key, variant:variant, colors:{}, done:[] };
+    saveAll(); sound('yum');
+    openColor();
+  }
+
+  /* ================= coloring ================= */
+  function openColor(){
+    var st=document.getElementById('colorStage');
+    st.innerHTML=creatureSVG(state.round.creatureKey, state.round.colors, state.round.variant, 'colorme', true);
+    each(st.querySelectorAll('.part'), function(el){
+      el.addEventListener('click',function(){
+        var id=el.getAttribute('data-part');
+        state.round.colors[id]=state.paintColor;
+        each(st.querySelectorAll('[data-part="'+id+'"]'), function(s){ s.setAttribute('fill', state.paintColor); });
+        sound('chime'); saveAll();
+      });
+    });
+    buildPalette();
+    document.getElementById('colorTitle').textContent=state.name+', color your '+creatureByKey(state.round.creatureKey).name+'!';
+    show('colorCreature');
+    if(state.voice) speak('Pick a color, then tap your '+creatureByKey(state.round.creatureKey).name+' to paint it! Make it beautiful.');
+  }
+  function buildPalette(){
+    var p=document.getElementById('palette'); p.innerHTML='';
+    PALETTE.forEach(function(col){
+      var b=document.createElement('button'); b.className='swatch'+(col===state.paintColor?' sel':'');
+      b.style.background=col; b.setAttribute('aria-label',col);
+      b.addEventListener('click',function(){ state.paintColor=col; each(p.children,function(x){x.classList.remove('sel');}); b.classList.add('sel'); });
+      p.appendChild(b);
+    });
+  }
+  function colorDone(){
+    saveAll();
+    if(state.collection.length){ openChooseCompanion(); }
+    else { state.companion=null; openChooseStory(); }
+  }
+
+  /* ================= choose companion (from collection) ================= */
+  function openChooseCompanion(){
+    var g=document.getElementById('companionGrid'); g.innerHTML='';
+    state.collection.forEach(function(item){
+      var d=document.createElement('div'); d.className='pick';
+      d.innerHTML=creatureSVG(item.key,item.colors,item.variant)+'<div class="pname">'+creatureByKey(item.key).name+'</div>';
       d.addEventListener('click',function(){
-        state.uni=u; sound('yum');
-        if(state.voice) speak('You picked '+u.name+'!');
-        buildStoryCards(); show('chooseStory');
+        state.companion={key:item.key,variant:item.variant,colors:item.colors}; saveAll();
+        if(state.voice) speak(creatureByKey(item.key).name+' will cheer you on!');
+        openChooseStory();
       });
       g.appendChild(d);
     });
+    document.getElementById('companionTitle').textContent=state.name+', pick a friend to cheer you on!';
+    show('chooseCompanion');
+    if(state.voice) speak(state.name+', pick a friend from your collection to cheer you on!');
   }
-  function buildStoryCards(){
+
+  /* ================= choose story ================= */
+  function openChooseStory(){
     var c=document.getElementById('storyCards'); c.innerHTML='';
     var bmap={easy:'Easy',med:'Medium',hard:'Big Kid'};
+    var doneArr=(state.round&&state.round.done)||[];
     STORIES.forEach(function(s){
-      var d=document.createElement('div'); d.className='story';
-      d.innerHTML='<div class="em">'+s.em+'</div><div class="st">'+s.title+'</div>'+
+      var isDone=doneArr.indexOf(s.key)>=0;
+      var d=document.createElement('div'); d.className='story'+(isDone?' done':'');
+      d.innerHTML='<div class="em">'+s.em+(isDone?' ✅':'')+'</div><div class="st">'+s.title+'</div>'+
         '<span class="badge '+s.badge+'">'+bmap[s.badge]+'</span>'+
         '<div class="desc">'+s.desc+'</div>';
       d.addEventListener('click',function(){ openIntro(s); });
       c.appendChild(d);
     });
+    var nm = state.round ? creatureByKey(state.round.creatureKey).name : '';
+    document.getElementById('storyTitle').textContent = state.round ? ('Finish all 3 to tame your '+nm+'!') : 'Pick an adventure!';
+    document.getElementById('roundProg').innerHTML = state.round ? (miniCreature()+'<span>'+doneArr.length+' / '+STORIES.length+' adventures done</span>') : '';
+    document.getElementById('changeFriend').style.display = state.collection.length ? 'inline-block' : 'none';
+    show('chooseStory');
   }
 
   /* ================= intro ================= */
   function openIntro(s){
     state.story=s;
-    document.getElementById('introUni').innerHTML=unicornSVG(state.uni,'intro');
+    document.getElementById('introUni').innerHTML=companionOrRoundSVG();
     document.getElementById('introTitle').textContent=s.em+' '+s.title;
-    var txt=s.intro(state.name, state.uni);
+    var txt=s.intro(state.name);
     document.getElementById('introText').textContent=txt;
     show('intro');
     if(state.voice) speak(txt);
@@ -435,10 +674,11 @@
   /* ================= game ================= */
   function startStory(){
     state.fed=0; state.goal=state.story.goal;
-    /* pick ~5 random checkpoints (not first/last) for surprise fun */
     var poolQ=[]; for(var i=2;i<state.goal;i++) poolQ.push(i); shuffle(poolQ);
     state.surpriseAt=new Set(poolQ.slice(0, Math.min(5,poolQ.length)));
-    document.getElementById('gameUni').innerHTML=unicornSVG(state.uni,'game');
+    var gu=document.getElementById('gameUni'), gm=document.getElementById('game');
+    if(state.companion){ gu.innerHTML=creatureSVG(state.companion.key,state.companion.colors,state.companion.variant); gm.classList.remove('nocompanion'); }
+    else { gu.innerHTML=''; gm.classList.add('nocompanion'); }
     updateProgress();
     show('game');
     newProblem();
@@ -455,10 +695,8 @@
     }
     while(opts.length<3) opts.push(p.ans+opts.length+1);
     shuffle(opts);
-
     var frame=pick(state.story.frames); state.currentFrame=frame;
     document.getElementById('plabel').textContent=frame;
-
     var b=document.getElementById('bubble');
     b.textContent=p.q;
     b.className='bubble'+(p.isCount?' count':'');
@@ -500,7 +738,7 @@
     }
   }
 
-  /* ================= unicorn reactions ================= */
+  /* ================= reactions ================= */
   function happy(){ var w=document.getElementById('gameUni'); w.classList.remove('sad','spin'); void w.offsetWidth; w.classList.add('happy'); setTimeout(function(){w.classList.remove('happy');},1000); }
   function sad(){ var w=document.getElementById('gameUni'); w.classList.remove('happy','spin'); void w.offsetWidth; w.classList.add('sad'); setTimeout(function(){w.classList.remove('sad');},1150); }
 
@@ -526,7 +764,7 @@
     document.getElementById('stars').textContent=it+' '+state.fed+' / '+state.goal;
   }
 
-  /* ================= surprise effects (fire on a few random questions) ================= */
+  /* ================= surprise effects ================= */
   function emojiRain(list,n,dur){
     for(var i=0;i<n;i++){(function(){
       var s=document.createElement('div'); s.className='confetti'; s.textContent=pick(list);
@@ -573,16 +811,36 @@
     else { floatUp(['🎵','🎶','🎵','⭐','💫'],14); melody([659,784,659,880],'triangle',0.12,0.14); }
   }
 
-  /* ================= win + themed finale ================= */
+  /* ================= win + finale + tame ================= */
   function winGame(){
+    if(state.round && state.round.done.indexOf(state.story.key)<0){ state.round.done.push(state.story.key); saveAll(); }
+    var allDone = state.round && state.round.done.length>=STORIES.length;
+    if(allDone){ showTame(); return; }
     document.getElementById('winTitle').textContent=state.story.winTitle;
-    document.getElementById('winUni').innerHTML=unicornSVG(state.uni,'win');
-    var t=state.story.win(state.name);
+    document.getElementById('winUni').innerHTML=companionOrRoundSVG();
+    var doneN=state.round?state.round.done.length:1;
+    var nm=state.round?creatureByKey(state.round.creatureKey).name:'creature';
+    var t=state.story.win(state.name)+'  ('+doneN+' of '+STORIES.length+' adventures done!)';
     document.getElementById('winText').textContent=t;
-    var par=document.querySelector('#win .parade'); if(par) par.textContent=state.story.parade||'🦄🎉🦄';
+    document.querySelector('#win .parade').textContent=state.story.parade||'🦄🎉🦄';
     show('win');
     finale(state.story.key);
-    if(state.voice) speak(t);
+    if(state.voice) speak(state.story.win(state.name)+' That is '+doneN+' of 3 adventures. Finish the rest to tame your '+nm+'!');
+  }
+  function showTame(){
+    var cr=state.round;
+    var tamed={key:cr.creatureKey, variant:cr.variant, colors:cr.colors};
+    state.collection.push(tamed);
+    state.round=null; state.companion=null;
+    saveAll();
+    var nm=creatureByKey(tamed.key).name;
+    document.getElementById('tameStage').innerHTML=creatureSVG(tamed.key, tamed.colors, tamed.variant);
+    document.getElementById('tameTitle').textContent='You tamed your '+nm+'!';
+    document.getElementById('tameText').textContent='Amazing, '+state.name+'! You finished ALL THREE adventures and tamed your very own '+nm+'! It is yours now — find it any time in your collection. 🎒';
+    document.querySelector('#tame .parade').textContent=creatureByKey(tamed.key).name==='Dragon'?'✨🐉✨':'✨🦄✨';
+    show('tame');
+    finale('party');
+    if(state.voice) speak('Hooray '+state.name+'! You finished all three adventures and tamed your very own '+nm+'! It is now in your collection forever.');
   }
   function finale(kind){
     if(kind==='party'){
@@ -597,15 +855,28 @@
       setTimeout(function(){ paradeAcross(['🦄','💖','🦄']); },500);
     } else {
       flash('#ffe9c7');
-      emojiRain(['❄️','💥','🧊','⚡'],26,1.2);            /* the ice shatters... */
+      emojiRain(['❄️','💥','🧊','⚡'],26,1.2);
       melody([392,523,659,784,1046,784,1046,1318,1568],'square',0.14,0.13);
-      setTimeout(function(){                                /* ...then the kingdom warms up */
-        emojiRain(['☀️','🌈','🐉','✨','💛','🎆'],38,2.4);
-        paradeAcross(['🐉','🌈','☀️','🦄']);
-      },700);
+      setTimeout(function(){ emojiRain(['☀️','🌈','🐉','✨','💛','🎆'],38,2.4); paradeAcross(['🐉','🌈','☀️','🦄']); },700);
     }
     for(var i=0;i<26;i++)(function(k){ setTimeout(function(){ sparkleAt(rnd(innerWidth), rnd(innerHeight/2)); },k*55); })(i);
   }
+
+  /* ================= collection modal ================= */
+  function openCollection(){
+    var g=document.getElementById('collectionGrid'); g.innerHTML='';
+    if(!state.collection.length){
+      g.innerHTML='<p class="lead">No creatures yet! Finish all three adventures to tame your first one. 🥚</p>';
+    } else {
+      state.collection.forEach(function(item){
+        var d=document.createElement('div'); d.className='pick';
+        d.innerHTML=creatureSVG(item.key,item.colors,item.variant)+'<div class="pname">'+creatureByKey(item.key).name+'</div>';
+        g.appendChild(d);
+      });
+    }
+    document.getElementById('collection').classList.add('open');
+  }
+  function closeCollection(){ document.getElementById('collection').classList.remove('open'); }
 
   /* ================= sound ================= */
   var AC=null;
@@ -622,7 +893,7 @@
   function sound(kind){
     if(kind==='yum'){ tone(660,.12,'triangle',0); tone(880,.15,'triangle',.09); tone(1180,.2,'triangle',.2); }
     else if(kind==='boop'){ tone(240,.18,'sine',0,.11); tone(180,.2,'sine',.08,.1); }
-    else if(kind==='chime'){ tone(1318,.15,'triangle',0,.12); tone(1568,.15,'triangle',.08,.12); tone(2093,.2,'triangle',.16,.12); }
+    else if(kind==='chime'){ tone(1318,.13,'triangle',0,.11); tone(1568,.14,'triangle',.07,.11); tone(2093,.18,'triangle',.14,.11); }
     else if(kind==='silly'){
       var a=ac(); if(!a) return;
       var o=a.createOscillator(), g=a.createGain(); o.type='sine'; o.connect(g); g.connect(a.destination);
@@ -691,7 +962,7 @@
     try{
       speechSynthesis.cancel();
       var u=new SpeechSynthesisUtterance(text);
-      u.rate=0.9; u.pitch=1.12;                 /* calm, warm, gentle — snow-queen-ish */
+      u.rate=0.9; u.pitch=1.12;
       if(state.voiceObj){ u.voice=state.voiceObj; u.lang=state.voiceObj.lang; }
       speechSynthesis.speak(u);
     }catch(e){}
@@ -706,13 +977,20 @@
     }})();
 
   /* ================= wiring ================= */
+  loadAll();
   var nameInput=document.getElementById('nameInput');
+  if(state.name && state.name!=='friend') nameInput.value=state.name;
+
   function goName(){
     var v=(nameInput.value||'').trim();
     state.name = v ? cap(v) : 'friend';
-    document.getElementById('petTitle').textContent=state.name+', which unicorn do you want to pet?';
-    buildUniGrid(); show('chooseUni');
-    if(state.voice) speak('Hi '+state.name+'! Pick a unicorn friend.');
+    saveAll();
+    if(state.round && state.round.creatureKey){
+      openChooseStory();
+      if(state.voice) speak('Welcome back '+state.name+'! Keep going to tame your '+creatureByKey(state.round.creatureKey).name+'.');
+    } else {
+      openChooseCreature();
+    }
   }
   document.getElementById('nameGo').addEventListener('click',goName);
   nameInput.addEventListener('keydown',function(e){ if(e.key==='Enter') goName(); });
@@ -730,15 +1008,24 @@
     speak('Hello '+(state.name!=='friend'?state.name:'')+'! Let us make some magic math together!');
   });
 
-  document.getElementById('backToUni').addEventListener('click',function(){ buildUniGrid(); show('chooseUni'); });
+  document.getElementById('colorDone').addEventListener('click',colorDone);
+  document.getElementById('companionSolo').addEventListener('click',function(){ state.companion=null; saveAll(); openChooseStory(); });
+  document.getElementById('changeFriend').addEventListener('click',function(){ if(state.collection.length) openChooseCompanion(); });
+
   document.getElementById('introGo').addEventListener('click',startStory);
-  document.getElementById('introBack').addEventListener('click',function(){ show('chooseStory'); });
-  document.getElementById('introSay').addEventListener('click',function(){ if(state.story) speak(state.story.intro(state.name,state.uni)); });
+  document.getElementById('introBack').addEventListener('click',openChooseStory);
+  document.getElementById('introSay').addEventListener('click',function(){ if(state.story) speak(state.story.intro(state.name)); });
   document.getElementById('say').addEventListener('click',function(){ if(state.current) speak((state.currentFrame?state.currentFrame+' ':'')+state.current.spoken); });
 
-  document.getElementById('home').addEventListener('click',function(){ show('chooseStory'); });
+  document.getElementById('home').addEventListener('click',openChooseStory);
+  document.getElementById('nextAdv').addEventListener('click',openChooseStory);
   document.getElementById('playAgain').addEventListener('click',startStory);
-  document.getElementById('otherStory').addEventListener('click',function(){ show('chooseStory'); });
+  document.getElementById('tameNew').addEventListener('click',function(){ state.round=null; state.companion=null; saveAll(); openChooseCreature(); });
+  document.getElementById('tameCollection').addEventListener('click',openCollection);
+
+  document.getElementById('bag').addEventListener('click',openCollection);
+  document.getElementById('bagGame').addEventListener('click',openCollection);
+  document.getElementById('collectionClose').addEventListener('click',closeCollection);
 
   var vbtn=document.getElementById('voice');
   vbtn.addEventListener('click',function(){
