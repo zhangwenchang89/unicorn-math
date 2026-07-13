@@ -182,6 +182,12 @@
   .modal.open{display:flex;}
   .modal .panel{background:#fff; border-radius:26px; padding:22px; width:min(92vw,780px); max-height:82vh;
     overflow:auto; box-shadow:0 12px 40px #0006; display:flex; flex-direction:column; align-items:center; gap:14px;}
+  .pick.coll{width:min(44vw,168px);}
+  .cname{font-family:inherit; font-weight:800; font-size:15px; text-align:center; width:100%; margin-top:4px;
+    border:2px solid var(--purple); border-radius:12px; padding:6px 8px; color:var(--ink); background:#fff; outline:none;}
+  .recolor{margin-top:6px; font-size:14px; padding:6px 12px;}
+  #tameName{font-family:inherit; font-size:22px; text-align:center; padding:10px 16px; border:3px solid var(--purple);
+    border-radius:14px; width:min(70vw,280px); color:var(--ink); background:#fff; outline:none;}
 
   .voiceoff .say{opacity:.4;}
 </style>
@@ -287,6 +293,8 @@
   <h1 class="big" id="tameTitle">You tamed it!</h1>
   <div class="uni-wrap" id="tameStage"></div>
   <p class="lead" id="tameText"></p>
+  <div style="font-weight:800; color:var(--purple-d)">✏️ Name your new creature:</div>
+  <input id="tameName" placeholder="Type a name" autocomplete="off" maxlength="14">
   <div class="parade">✨🐉✨</div>
   <div style="display:flex; gap:12px; flex-wrap:wrap; justify-content:center">
     <button class="btn" id="tameNew">Collect a new creature ▶</button>
@@ -314,9 +322,10 @@
                 voiceList:[], voiceObj:null, surpriseAt:null,
                 story:null, fed:0, goal:20,
                 round:null,        /* {creatureKey, variant, colors:{}, done:[storyKey]} */
-                companion:null,    /* {key, variant, colors} or null */
-                collection:[],     /* [{key, variant, colors}] */
-                paintColor:"#ff5b6e" };
+                companion:null,    /* {key, variant, colors, name} or null */
+                collection:[],     /* [{key, variant, colors, name}] */
+                paintColor:"#ff5b6e",
+                colorTarget:null, colorDoneCb:null, lastTamed:null };
 
   /* ================= helpers ================= */
   function rnd(n){ return Math.floor(Math.random()*n); }
@@ -586,25 +595,29 @@
   function pickCreature(key, variant){
     state.round={ creatureKey:key, variant:variant, colors:{}, done:[] };
     saveAll(); sound('yum');
-    openColor();
+    startColoring({key:key, variant:variant, colors:state.round.colors}, colorDoneRound);
   }
 
-  /* ================= coloring ================= */
-  function openColor(){
-    var st=document.getElementById('colorStage');
-    st.innerHTML=creatureSVG(state.round.creatureKey, state.round.colors, state.round.variant, 'colorme', true);
+  /* ================= coloring (reusable: new creature OR recolor from collection) ================= */
+  function creatureName(t){ return (t && t.name) ? t.name : creatureByKey(t.key).name; }
+  function startColoring(target, onDone){
+    state.colorTarget=target; state.colorDoneCb=onDone;
+    renderColorStage(); show('colorCreature');
+    if(state.voice) speak('Pick a color, then tap your '+creatureName(target)+' to paint it! Make it beautiful.');
+  }
+  function renderColorStage(){
+    var t=state.colorTarget, st=document.getElementById('colorStage');
+    st.innerHTML=creatureSVG(t.key, t.colors, t.variant, 'colorme', true);
     each(st.querySelectorAll('.part'), function(el){
       el.addEventListener('click',function(){
         var id=el.getAttribute('data-part');
-        state.round.colors[id]=state.paintColor;
+        t.colors[id]=state.paintColor;
         each(st.querySelectorAll('[data-part="'+id+'"]'), function(s){ s.setAttribute('fill', state.paintColor); });
         sound('chime'); saveAll();
       });
     });
     buildPalette();
-    document.getElementById('colorTitle').textContent=state.name+', color your '+creatureByKey(state.round.creatureKey).name+'!';
-    show('colorCreature');
-    if(state.voice) speak('Pick a color, then tap your '+creatureByKey(state.round.creatureKey).name+' to paint it! Make it beautiful.');
+    document.getElementById('colorTitle').textContent=state.name+', color your '+creatureName(t)+'!';
   }
   function buildPalette(){
     var p=document.getElementById('palette'); p.innerHTML='';
@@ -615,21 +628,27 @@
       p.appendChild(b);
     });
   }
-  function colorDone(){
+  function colorDoneRound(){
     saveAll();
     if(state.collection.length){ openChooseCompanion(); }
     else { state.companion=null; openChooseStory(); }
+  }
+  function afterColorReturnToMenu(){ if(state.round) openChooseStory(); else openChooseCreature(); }
+  function recolorItem(item){
+    closeCollection();
+    startColoring(item, function(){ saveAll(); afterColorReturnToMenu(); openCollection(); });
   }
 
   /* ================= choose companion (from collection) ================= */
   function openChooseCompanion(){
     var g=document.getElementById('companionGrid'); g.innerHTML='';
     state.collection.forEach(function(item){
+      var nm=item.name||creatureByKey(item.key).name;
       var d=document.createElement('div'); d.className='pick';
-      d.innerHTML=creatureSVG(item.key,item.colors,item.variant)+'<div class="pname">'+creatureByKey(item.key).name+'</div>';
+      d.innerHTML=creatureSVG(item.key,item.colors,item.variant)+'<div class="pname">'+nm+'</div>';
       d.addEventListener('click',function(){
-        state.companion={key:item.key,variant:item.variant,colors:item.colors}; saveAll();
-        if(state.voice) speak(creatureByKey(item.key).name+' will cheer you on!');
+        state.companion={key:item.key,variant:item.variant,colors:item.colors,name:item.name}; saveAll();
+        if(state.voice) speak(nm+' will cheer you on!');
         openChooseStory();
       });
       g.appendChild(d);
@@ -829,18 +848,20 @@
   }
   function showTame(){
     var cr=state.round;
-    var tamed={key:cr.creatureKey, variant:cr.variant, colors:cr.colors};
+    var nm=creatureByKey(cr.creatureKey).name;
+    var tamed={key:cr.creatureKey, variant:cr.variant, colors:cr.colors, name:nm};
     state.collection.push(tamed);
+    state.lastTamed=tamed;
     state.round=null; state.companion=null;
     saveAll();
-    var nm=creatureByKey(tamed.key).name;
     document.getElementById('tameStage').innerHTML=creatureSVG(tamed.key, tamed.colors, tamed.variant);
     document.getElementById('tameTitle').textContent='You tamed your '+nm+'!';
-    document.getElementById('tameText').textContent='Amazing, '+state.name+'! You finished ALL THREE adventures and tamed your very own '+nm+'! It is yours now — find it any time in your collection. 🎒';
-    document.querySelector('#tame .parade').textContent=creatureByKey(tamed.key).name==='Dragon'?'✨🐉✨':'✨🦄✨';
+    document.getElementById('tameText').textContent='Amazing, '+state.name+'! You finished ALL THREE adventures and tamed your very own '+nm+'! It is yours forever — give it a name below. 🎒';
+    var inp=document.getElementById('tameName'); if(inp) inp.value=nm;
+    document.querySelector('#tame .parade').textContent=nm==='Dragon'?'✨🐉✨':'✨🦄✨';
     show('tame');
     finale('party');
-    if(state.voice) speak('Hooray '+state.name+'! You finished all three adventures and tamed your very own '+nm+'! It is now in your collection forever.');
+    if(state.voice) speak('Hooray '+state.name+'! You finished all three adventures and tamed your very own '+nm+'! Now give it a name.');
   }
   function finale(kind){
     if(kind==='party'){
@@ -869,8 +890,15 @@
       g.innerHTML='<p class="lead">No creatures yet! Finish all three adventures to tame your first one. 🥚</p>';
     } else {
       state.collection.forEach(function(item){
-        var d=document.createElement('div'); d.className='pick';
-        d.innerHTML=creatureSVG(item.key,item.colors,item.variant)+'<div class="pname">'+creatureByKey(item.key).name+'</div>';
+        var d=document.createElement('div'); d.className='pick coll';
+        d.innerHTML=creatureSVG(item.key,item.colors,item.variant);
+        var inp=document.createElement('input'); inp.className='cname'; inp.maxLength=14;
+        inp.value=item.name||creatureByKey(item.key).name; inp.setAttribute('aria-label','creature name');
+        inp.addEventListener('input',function(){ var v=(inp.value||'').trim(); item.name=v||creatureByKey(item.key).name; saveAll(); });
+        d.appendChild(inp);
+        var rc=document.createElement('button'); rc.className='btn ghost small recolor'; rc.type='button'; rc.textContent='🎨 Recolor';
+        rc.addEventListener('click',function(){ recolorItem(item); });
+        d.appendChild(rc);
         g.appendChild(d);
       });
     }
@@ -1008,7 +1036,11 @@
     speak('Hello '+(state.name!=='friend'?state.name:'')+'! Let us make some magic math together!');
   });
 
-  document.getElementById('colorDone').addEventListener('click',colorDone);
+  document.getElementById('colorDone').addEventListener('click',function(){ if(state.colorDoneCb) state.colorDoneCb(); });
+  var tameNameInput=document.getElementById('tameName');
+  if(tameNameInput){ tameNameInput.addEventListener('input',function(){
+    if(state.lastTamed){ var v=(tameNameInput.value||'').trim(); state.lastTamed.name = v || creatureByKey(state.lastTamed.key).name; saveAll(); }
+  }); }
   document.getElementById('companionSolo').addEventListener('click',function(){ state.companion=null; saveAll(); openChooseStory(); });
   document.getElementById('changeFriend').addEventListener('click',function(){ if(state.collection.length) openChooseCompanion(); });
 
