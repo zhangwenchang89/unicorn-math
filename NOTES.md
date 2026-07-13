@@ -17,15 +17,18 @@ Hosted on GitHub Pages from this folder's git repo. To publish an edit:
 The live site updates automatically about a minute after each push.
 
 ## Game flow
-Name entry → Pick unicorn (6 choices) → Pick story (3) → Story intro (spoken) → Play → Win → replay / pick another story.
+Name entry → **Pick a fairy creature to tame** (B&W) → **Color it** → **Pick a companion** from already-collected creatures (skipped in round 1) → Pick story (3) → Story intro (spoken) → Play → single-adventure Win → back to story menu. Finishing **all 3** adventures in a round → **Tame screen** (creature saved to collection) → new round.
 
 ## What's built so far
-- **Name first**: child types name; unicorn greets & cheers her by name (text + read-aloud voice).
-- **6 pickable unicorns** (Sparkle, Blueberry, Rainbow, Buttercup, Minty, Lavender). Chosen one appears beside every question and in intro/win screens.
-- **Full-body animated SVG unicorn** (`unicornSVG()` function):
-  - Idle: breathing + tail sway.
-  - Correct: jumps/dances, blush cheeks, big smile, whinny sound, sparkles.
-  - Wrong: slumps, frowns, sheds tears, gentle shake — never a "game over".
+- **Name first**: child types name; spoken greeting by name. Name saved (`localStorage['ange_name']`) and pre-filled next visit.
+- **Collectible fairy creatures** (2026-07-13) — the core new loop:
+  - **Pick to tame**: `chooseCreature` shows a **randomized subset** (4 of 5) of creatures in **black & white** line-art, each with a **random shape variant** (so the set — and each creature — looks different every time). Creatures: Dragon, Phoenix, Pixie, Unicorn, Sky Kitten (`CREATURES[]`, each a `drawX(F,v)` fn).
+  - **Color it** (`colorCreature`): coloring-book style — tap a palette swatch to pick `state.paintColor`, then tap any body part (`.part[data-part]`) to paint it; repaint anytime. 15-color `PALETTE`. Colors saved live to the round.
+  - **Tame**: completing all 3 adventures (`state.round.done` reaches all `STORIES` keys) → `showTame()` adds `{key,variant,colors}` to `state.collection` (persisted), shows a party finale + message, then a new round begins.
+  - **Collection**: 🎒 button (floating `#bag` on menus, `#bagGame` in game topbar) opens a modal showing every tamed creature **with the colors she chose**.
+- **Companion** (2026-07-13): during questions the reacting buddy is a creature she **already collected** (`chooseCompanion` grid). **Round 1 has no companion** (collection empty → `#game.nocompanion` hides the companion column; audio reactions still play). Picked per round; "Play by myself" opt-out exists.
+- **Creature animations** reuse the old unicorn reaction CSS: creatures render as `.uni-svg.creature` with shared `face()` pieces (`.cheek/.mouth-happy/.mouth-sad/.tear`), so `happy()`/`sad()`/breathing/spin all work unchanged.
+- **"Elsa" voice** (2026-07-12): read-aloud auto-picks the warmest female English voice on the device (`bestVoice()` scoring) and tunes it gentle/regal (`rate .9, pitch 1.12`). NOTE: the *real* Frozen/Idina Menzel voice is copyrighted and unavailable to browsers — this is the closest system-voice approximation. A **voice picker** on the name screen (`#voiceSel` + 🔊 Try) lets you choose any installed voice; choice saved in `localStorage['elsaVoice']`. On macOS, install premium voices (System Settings → Accessibility → Spoken Content → Manage Voices) for better quality.
 - **"Elsa" voice** (2026-07-12): read-aloud auto-picks the warmest female English voice on the device (`bestVoice()` scoring) and tunes it gentle/regal (`rate .9, pitch 1.12`). NOTE: the *real* Frozen/Idina Menzel voice is copyrighted and unavailable to browsers — this is the closest system-voice approximation. A **voice picker** on the name screen (`#voiceSel` + 🔊 Try) lets you choose any installed voice; choice saved in `localStorage['elsaVoice']`. On macOS, install premium voices (System Settings → Accessibility → Spoken Content → Manage Voices) for better quality.
 - **3 stories**, **20 problems each**, with **difficulty that ramps within the adventure** (`lvl = fed/(goal-1)`, fed into every generator):
   1. 🧁 The Frozen Cupcake Party — Easy: add/subtract (to ~30), make-10/make-20, counting, small doubles.
@@ -38,22 +41,28 @@ Name entry → Pick unicorn (6 choices) → Pick story (3) → Story intro (spok
 - 🏠 button returns to story menu.
 
 ## Code map (inside the single file, in the `<script>`)
-- `state` — name, uni, story, fed count, goal (20), voice on/off, current, currentFrame, voiceList, voiceObj, surpriseAt.
-- `UNICORNS[]` — color palettes. `unicornSVG(u, tag)` — builds the SVG (tag makes gradient IDs unique).
+- `state` — name, voice on/off, story, fed, goal (20), current, currentFrame, surpriseAt, voiceList/voiceObj, **`round`** `{creatureKey,variant,colors,done[]}`, **`companion`** `{key,variant,colors}|null`, **`collection[]`**, **`paintColor`**.
+- **Creatures**: `CREATURES[]` (key,name,`draw`), `drawDragon/Phoenix/Pixie/Unicorn/Kitten(F,v)`, `variantFor(key)` (random shape knobs), `creatureSVG(key,colors,variant,extraClass,bw)`, `makeFill(colors,bw)` + `P(id,F,def)` (colorable-part fill resolver; `bw=true` forces white for the B&W selection/coloring canvas), shared `face(cx,cy,r)`, `DARK`, `PALETTE[]`.
+- **Persistence**: `saveAll()`/`loadAll()` — `localStorage` keys `ange_collection`, `ange_round` (`{round,companion}`), `ange_name`, plus `elsaVoice`. Round resumes across sessions (goName → chooseStory if a round is in progress).
 - Generators (each takes `lvl` 0..1, scaled via `lerp`): `makeArith(loMax,hiMax)`, `makeMakeN()`, `makeBonds(loWhole,hiWhole)`, `makeSkip(steps)`, `makeCount()`, `makeDoubles(loMax,hiMax)`, `makeAdd3(loMax,hiMax)`, `makeMult()`.
-- `STORIES[]` — each has `key`, `gens[]`, `frames[]`, `parade`, `intro(name,uni)`, `winTitle`, `win(name)`, themed `item` emoji, `goal`.
-- `show(id)` — screen switcher. Screens: name, chooseUni, chooseStory, intro, game, win.
-- `newProblem()` / `renderAnswers()` / `choose()` — gameplay loop (3 answer options, correct + 2 near distractors; ramps difficulty; triggers surprises).
+- `STORIES[]` — each has `key`, `gens[]`, `frames[]`, `parade`, `intro(name)`, `winTitle`, `win(name)`, themed `item` emoji, `goal`.
+- `show(id)` — screen switcher (also toggles the floating 🎒). Screens: name, chooseCreature, colorCreature, chooseCompanion, chooseStory, intro, game, win, tame. Plus `#collection` modal (`openCollection`/`closeCollection`).
+- Flow fns: `openChooseCreature`→`pickCreature`→`openColor`/`buildPalette`→`colorDone`→`openChooseCompanion`→`openChooseStory`→`openIntro`→`startStory`. `companionOrRoundSVG()`/`miniCreature()` render helpers.
+- `newProblem()` / `renderAnswers()` / `choose()` — gameplay loop (3 options; ramps difficulty; triggers surprises). `winGame()` records `done`, branches to `showTame()` when all 3 finished.
 - Reactions: `happy()`, `sad()`, `cheer()`, `sparkleAt()`, `funSurprise()`, `finale()`. Effects: `emojiRain()`, `paradeAcross()`, `floatUp()`, `flash()`.
 - Audio: `tone()`, `melody()`, `sound()`, `whinny()`. Voice: `loadVoices()`, `bestVoice()`, `buildVoiceMenu()`, `speak()`.
+
+## Verifying edits before deploy (now with a real DOM harness)
+`jsdom` is installed in the session scratchpad. The integration test there loads `index.html`, stubs speech/audio, uses a fake-timer `drain()` to skip the inter-question delays, and drives the whole flow by clicking (name → pick creature → paint → auto-answer all 3 adventures → tame → collection → round-2 companion path). Re-run/adapt it after flow changes. Also still: `node --check` the extracted `<script>`, and the ~150k-run generator math validator if generators change. Then `open index.html`, commit, push.
 
 ## Verifying edits before deploy
 The whole game is inline JS, so after edits: syntax-check (`node --check` on the extracted `<script>`) and, if generators changed, re-run the math validator (see git history / earlier session — it runs each generator ~150k times checking answers are correct, ≥0, and always among the 3 options). Then `open index.html` to eyeball, then commit + push.
 
 ## Ideas discussed for NEXT (not yet built)
-- Give each unicorn its *own* spoken personality (different pitch / catchphrase per unicorn).
+- More fairy creatures + more colorable parts / variant knobs; maybe let her **name** each tamed creature.
+- Per-creature spoken personality (different pitch / catchphrase per companion).
 - A 4th "endless" free-play story with no goal.
-- Save progress between sessions (stickers/medals per story) via localStorage.
+- A "recolor" option to repaint a creature already in the collection; delete-from-collection.
 - **Multi-game arcade**: once a 2nd game exists, build an `AngeGames` menu/home page linking to each game (one bookmark for Ange).
 - Possible additions: Elsa/Anna cameo between rounds, word problems.
 
